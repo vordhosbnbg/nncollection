@@ -1,20 +1,21 @@
 #pragma once
 #include <vector>
+#include <cmath>
 
 #include "connection.h"
 
 class Neuron
 {
 public:
-    Neuron() : value(0.0){}
+    Neuron() : value(0), bias(0) {}
     ~Neuron() = default;
 
-    inline void addInput(const Neuron& inputNeuron, double weight)
+    inline void addInput(const Neuron& inputNeuron, float weight)
     {
         inputs.emplace_back(inputNeuron, weight);
     }
 
-    inline double getValue() const
+    inline float getValue() const
     {
         return value;
     }
@@ -26,12 +27,14 @@ public:
         {
             value += input.inputNeuron.value * input.inputWeight;
         }
-        value /= inputs.size();
+        value += bias;
+        value = std::tanh(value);
     }
 
 private:
 
-    double value;
+    float value;
+    float bias;
     std::vector<Connection> inputs;
 
 };

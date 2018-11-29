@@ -57,3 +57,5 @@ CHECK_CXX_COMPILER_FLAG("-pthread" HAS_FLAG_PTHREAD)
 if (HAS_FLAG_PTHREAD)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -pthread")
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra")

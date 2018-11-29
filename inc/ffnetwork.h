@@ -20,17 +20,17 @@ public:
 private:
     constexpr inline void connectLayers()
     {
-        constexpr size_t hiddenLayersCount = std::tuple_size(hiddenLayers);
+        constexpr size_t hiddenLayersCount = std::tuple_size<decltype(hiddenLayers)>::value;
         if(hiddenLayersCount == 0)
         {
-            outputLayer.connectInputsFrom<inputNb>(inputLayer);
+            outputLayer.connectInputsFrom(inputLayer);
         }
         else
         {
             auto& hiddenLayerFirst = std::get<0>(hiddenLayers);
             auto& hiddenLayerLast = std::get<hiddenLayersCount-1>(hiddenLayers);
-            hiddenLayerFirst.connectInputsFrom<inputNb>(inputLayer);
-            outputLayer.connectInputsFrom<hiddenLayerLast.getNeuronNb()>(hiddenLayerLast);
+            hiddenLayerFirst.connectInputsFrom(inputLayer);
+            outputLayer.connectInputsFrom(hiddenLayerLast);
         }
         for(size_t hiddenLayerNb = 0; hiddenLayerNb < hiddenLayersCount ; ++hiddenLayerNb)
         {

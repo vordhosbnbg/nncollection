@@ -1,8 +1,8 @@
 #include "ffnetwork.h"
 
 
-int main (int argc, char** argv)
+int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
-    FFNetwork<3,1,2> net;
+    FFNetwork<300,10,200, 100, 50, 20> net;
     return 0;
 }
