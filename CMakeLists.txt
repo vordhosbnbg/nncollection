@@ -33,13 +33,16 @@ list(REMOVE_DUPLICATES Project_Test_INCLUDE_DIRS)
 include_directories(${Project_INCLUDE_DIRS})
 
 add_library (nncollection SHARED ${Project_SOURCES} ${External_SOURCES} )
-add_executable (nncollection_test ${Project_Test_SOURCES} )
-target_link_libraries(nncollection_test nncollection)
-
 set_property(TARGET nncollection PROPERTY CXX_STANDARD 17)
-set_property(TARGET nncollection_test PROPERTY CXX_STANDARD 17)
 find_package (Threads)
 target_link_libraries (nncollection ${CMAKE_THREAD_LIBS_INIT})
+
+foreach(_test ${Project_Test_SOURCES})
+    get_filename_component(_target_name ${_test} NAME_WE)
+    add_executable (${_target_name} ${_test} )
+    target_link_libraries(${_target_name} nncollection)
+    set_property(TARGET ${_target_name} PROPERTY CXX_STANDARD 17)
+endforeach()
 
 include(CheckCXXCompilerFlag)
 
