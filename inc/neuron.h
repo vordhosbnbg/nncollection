@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <vector>
+#include <random>
 
 #include "connection.h"
 
@@ -40,10 +41,20 @@ public:
         value = std::tanh(value);
     }
 
+    inline void randomizeInitial(std::mt19937& randE,
+                                 std::uniform_real_distribution<float>& biasDist,
+                                 std::uniform_real_distribution<float>& weightDist)
+    {
+        bias = biasDist(randE);
+        for(Connection& connection : inputs)
+        {
+            connection.inputWeight = weightDist(randE);
+        }
+    }
+
 private:
 
     float value{0};
     float bias{0};
     std::vector<Connection> inputs;
-
 };

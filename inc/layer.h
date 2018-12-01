@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <random>
 
 #include "neuron.h"
 
@@ -17,6 +18,18 @@ struct Layer
             {
                 neurons[cnt].addInput(otherLayer.neurons[otherCnt], 0.0);
             }
+        }
+    }
+
+    inline void randomizeInitial(std::mt19937& randE,
+                                 std::uniform_real_distribution<float>& biasDist,
+                                 std::uniform_real_distribution<float>& weightDist)
+    {
+        for(Neuron& neuron : neurons)
+        {
+            neuron.randomizeInitial(randE,
+                                    biasDist,
+                                    weightDist);
         }
     }
 

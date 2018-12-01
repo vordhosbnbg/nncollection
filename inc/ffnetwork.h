@@ -12,6 +12,9 @@ public:
     constexpr FFNetwork()
     {
         connectLayers();
+        randomizeInitial(re,
+                         _biasDist,
+                         _weightDist);
     }
     ~FFNetwork() = default;
 
@@ -25,7 +28,49 @@ public:
 
 private:
     std::random_device rd;
-    std::mt19937 re{rd()}; // or std::default_random_engine e{rd()};
+    std::mt19937 re{rd()};
+    Layer<inputNb> inputLayer;
+    Layer<outputNb> outputLayer;
+    std::tuple<Layer<hiddenNb>...> hiddenLayers;
+    static constexpr size_t hiddenLayersCount = std::tuple_size<decltype(hiddenLayers)>::value;
+    std::uniform_real_distribution<float> _biasDist{-1,1};
+    std::uniform_real_distribution<float> _weightDist{-1,1};
+
+
+    template<size_t layerNb>
+    typename std::enable_if<layerNb == hiddenLayersCount>::type
+    inline randomizeLayerInitialAndRecurse([[maybe_unused]] std::mt19937& randE,
+                                           [[maybe_unused]] std::uniform_real_distribution<float>& biasDist,
+                                           [[maybe_unused]] std::uniform_real_distribution<float>& weightDist)
+    {
+    }
+
+    template<size_t layerNb>
+    typename std::enable_if<layerNb < hiddenLayersCount>::type
+    inline randomizeLayerInitialAndRecurse(std::mt19937& randE,
+                                           std::uniform_real_distribution<float>& biasDist,
+                                           std::uniform_real_distribution<float>& weightDist)
+    {
+        auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
+        hiddenLayerCurrent.randomizeInitial(randE,
+                                            biasDist,
+                                            weightDist);
+        randomizeLayerInitialAndRecurse<layerNb+1>(randE,
+                                                   biasDist,
+                                                   weightDist);
+    }
+
+    inline void randomizeInitial(std::mt19937& randE,
+                                 std::uniform_real_distribution<float>& biasDist,
+                                 std::uniform_real_distribution<float>& weightDist)
+    {
+        randomizeLayerInitialAndRecurse<0>(randE,
+                                           biasDist,
+                                           weightDist);
+        outputLayer.randomizeInitial(randE,
+                                     biasDist,
+                                     weightDist);
+    }
 
     template<size_t layerNb>
     typename std::enable_if<layerNb <= 1>::type
@@ -60,12 +105,6 @@ private:
             connectNthHiddenLayerToPreviousAndRecurse<hiddenLayersCount>();
         }
     }
-
-
-    Layer<inputNb> inputLayer;
-    Layer<outputNb> outputLayer;
-    std::tuple<Layer<hiddenNb>...> hiddenLayers;
-    static constexpr size_t hiddenLayersCount = std::tuple_size<decltype(hiddenLayers)>::value;
 
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
