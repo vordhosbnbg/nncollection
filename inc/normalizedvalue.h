@@ -1,6 +1,4 @@
 #pragma once
-#include <mutex>
-#include <memory>
 
 template<class T>
 class NormalizedValue

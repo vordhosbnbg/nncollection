@@ -1,18 +1,27 @@
 #pragma once
-#include <vector>
 #include <cmath>
+#include <vector>
 
 #include "connection.h"
 
 class Neuron
 {
 public:
-    Neuron() : value(0), bias(0) {}
+    Neuron() = default;
+    Neuron(const Neuron& other) = default;
+    Neuron& operator=(const Neuron& other) = default;
+    Neuron(Neuron&& other) noexcept= default;
+    Neuron& operator=(Neuron&& other) noexcept= default;
     ~Neuron() = default;
 
     inline void addInput(const Neuron& inputNeuron, float weight)
     {
         inputs.emplace_back(inputNeuron, weight);
+    }
+
+    inline void reserveInputs(size_t size)
+    {
+        inputs.reserve(size);
     }
 
     inline float getValue() const
@@ -33,8 +42,8 @@ public:
 
 private:
 
-    float value;
-    float bias;
+    float value{0};
+    float bias{0};
     std::vector<Connection> inputs;
 
 };

@@ -12,10 +12,19 @@ struct Layer
     {
         for(size_t cnt = 0; cnt < Nb; ++cnt)
         {
+            neurons[cnt].reserveInputs(otherLayerNeuronNb);
             for(size_t otherCnt = 0; otherCnt < otherLayerNeuronNb; ++otherCnt)
             {
                 neurons[cnt].addInput(otherLayer.neurons[otherCnt], 0.0);
             }
+        }
+    }
+
+    constexpr inline void update()
+    {
+        for(Neuron& neuron : neurons)
+        {
+            neuron.update();
         }
     }
 
