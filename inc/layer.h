@@ -33,6 +33,24 @@ struct Layer
         }
     }
 
+    inline void mutate(std::mt19937& randE,
+                       std::uniform_real_distribution<float>& positiveNormalizedDist,
+                       float biasMutChance,
+                       std::uniform_real_distribution<float>& biasMutRate,
+                       float weightMutChance,
+                       std::uniform_real_distribution<float>& weightMutRate)
+    {
+        for(Neuron& neuron : neurons)
+        {
+            neuron.mutate(randE,
+                          positiveNormalizedDist,
+                          biasMutChance,
+                          biasMutRate,
+                          weightMutChance,
+                          weightMutRate);
+        }
+    }
+
     constexpr inline void update()
     {
         for(Neuron& neuron : neurons)

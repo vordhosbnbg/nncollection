@@ -30,6 +30,11 @@ public:
         return value;
     }
 
+    inline float setValue(float val)
+    {
+        return value = val;
+    }
+
     inline void update()
     {
         value = 0.0;
@@ -39,6 +44,46 @@ public:
         }
         value += bias;
         value = std::tanh(value);
+    }
+
+    inline void mutate(std::mt19937& randE,
+                       std::uniform_real_distribution<float>& positiveNormalizedDist,
+                       float biasMutChance,
+                       std::uniform_real_distribution<float>& biasMutRate,
+                       float weightMutChance,
+                       std::uniform_real_distribution<float>& weightMutRate)
+    {
+        float actualMutBias = positiveNormalizedDist(randE);
+        if(actualMutBias < biasMutChance)
+        {
+            float biasChange = biasMutRate(randE);
+            bias += biasChange;
+            if(bias > 1)
+            {
+                bias = 1;
+            }
+            else if(bias < -1)
+            {
+                bias = -1;
+            }
+        }
+        for(Connection& connection : inputs)
+        {
+            float actualMutWeight = positiveNormalizedDist(randE);
+            if(actualMutWeight < weightMutChance)
+            {
+                float weightChange = weightMutRate(randE);
+                connection.inputWeight += weightChange;
+                if(connection.inputWeight > 1)
+                {
+                    connection.inputWeight = 1;
+                }
+                else if(connection.inputWeight < -1)
+                {
+                    connection.inputWeight = -1;
+                }
+            }
+        }
     }
 
     inline void randomizeInitial(std::mt19937& randE,
