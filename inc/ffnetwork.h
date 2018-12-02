@@ -17,6 +17,27 @@ public:
                          _normalizedDist);
     }
     ~FFNetwork() = default;
+    FFNetwork(const FFNetwork& other) :
+        re(other.re),
+        inputLayer(other.inputLayer),
+        outputLayer(other.outputLayer),
+        hiddenLayers(other.hiddenLayers),
+        _normalizedDist(other._normalizedDist),
+        _positiveNormalizedDist(other._normalizedDist)
+    {
+        connectLayers();
+    }
+    FFNetwork& operator=(const FFNetwork& other)
+    {
+        re = other.re;
+        inputLayer = other.inputLayer;
+        outputLayer = other.outputLayer;
+        hiddenLayers = other.hiddenLayers;
+        _normalizedDist = other._normalizedDist;
+        _positiveNormalizedDist = other._normalizedDist;
+        connectLayers();
+        return *this;
+    }
 
 
     constexpr void process()
@@ -26,9 +47,9 @@ public:
     }
 
     void mutate(float biasMutChance,
-                       std::uniform_real_distribution<float>& biasMutRate,
-                       float weightMutChance,
-                       std::uniform_real_distribution<float>& weightMutRate)
+                std::uniform_real_distribution<float>& biasMutRate,
+                float weightMutChance,
+                std::uniform_real_distribution<float>& weightMutRate)
     {
         mutateLayerAndRecurse<0>(biasMutChance,
                                  biasMutRate,
@@ -56,6 +77,16 @@ public:
         return outputLayer.neurons[inputId].setValue(val);
     }
 
+    static constexpr unsigned int getInputNb()
+    {
+        return inputNb;
+    }
+
+    static constexpr unsigned int getOutputNb()
+    {
+        return  outputNb;
+    }
+
 private:
     std::mt19937& re;
     Layer<inputNb> inputLayer;
@@ -68,9 +99,9 @@ private:
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
     mutateLayerAndRecurse([[maybe_unused]] float biasMutChance,
-                                 [[maybe_unused]] std::uniform_real_distribution<float>& biasMutRate,
-                                 [[maybe_unused]] float weightMutChance,
-                                 [[maybe_unused]] std::uniform_real_distribution<float>& weightMutRate)
+                          [[maybe_unused]] std::uniform_real_distribution<float>& biasMutRate,
+                          [[maybe_unused]] float weightMutChance,
+                          [[maybe_unused]] std::uniform_real_distribution<float>& weightMutRate)
     {
     }
 

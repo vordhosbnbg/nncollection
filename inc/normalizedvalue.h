@@ -7,10 +7,10 @@ public:
 
     NormalizedValue():
         minVal(0),
-        maxVal(100),
+        maxVal(1),
         minValNormalized(0),
         maxValNormalized(1),
-        rangeVal(100),
+        rangeVal(maxVal - minVal),
         reciprocalRangeVal((maxValNormalized - minValNormalized) / (maxVal - minVal)),
         normalizedValue(0)
     {
@@ -22,7 +22,7 @@ public:
         maxVal(max),
         minValNormalized(minNormalized),
         maxValNormalized(maxNormalized),
-        rangeVal(max - min),
+        rangeVal(maxVal - minVal),
         reciprocalRangeVal((maxValNormalized - minValNormalized) / (maxVal - minVal)),
         normalizedValue(0)
     {
@@ -37,7 +37,7 @@ public:
         reciprocalRangeVal = (maxValNormalized - minValNormalized) / (maxVal - minVal);
     }
 
-    T get()
+    T get() const
     {
         T retVal = static_cast<T>(normalizedValue*rangeVal + minVal);
         return retVal;
@@ -56,7 +56,7 @@ public:
         normalizedValue = (val - minVal)*reciprocalRangeVal + minValNormalized;
     }
 
-    double getNormalized()
+    double getNormalized() const
     {
         return normalizedValue;
     }

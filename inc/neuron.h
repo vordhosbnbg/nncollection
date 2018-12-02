@@ -9,10 +9,29 @@ class Neuron
 {
 public:
     Neuron() = default;
-    Neuron(const Neuron& other) = default;
-    Neuron& operator=(const Neuron& other) = default;
-    Neuron(Neuron&& other) noexcept= default;
-    Neuron& operator=(Neuron&& other) noexcept= default;
+    Neuron(const Neuron& other) :
+        value(other.value),
+        bias(other.bias)
+    {
+    }
+    Neuron& operator=(const Neuron& other)
+    {
+        value = other.value;
+        bias = other.bias;
+        return *this;
+    }
+    Neuron(Neuron&& other) noexcept :
+        value(other.value),
+        bias(other.bias)
+    {
+    }
+    Neuron& operator=(Neuron&& other)
+    {
+        value = other.value;
+        bias = other.bias;
+        return *this;
+    }
+
     ~Neuron() = default;
 
     void addInput(const Neuron& inputNeuron, float weight)

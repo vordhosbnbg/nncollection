@@ -22,8 +22,8 @@ struct Layer
     }
 
     void randomizeInitial(std::mt19937& randE,
-                                 std::uniform_real_distribution<float>& biasDist,
-                                 std::uniform_real_distribution<float>& weightDist)
+                          std::uniform_real_distribution<float>& biasDist,
+                          std::uniform_real_distribution<float>& weightDist)
     {
         for(Neuron& neuron : neurons)
         {
