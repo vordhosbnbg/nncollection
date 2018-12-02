@@ -19,13 +19,13 @@ public:
     ~FFNetwork() = default;
 
 
-    constexpr inline void process()
+    constexpr void process()
     {
         processHiddenLayerRecurse<0>();
         outputLayer.update();
     }
 
-    inline void mutate(float biasMutChance,
+    void mutate(float biasMutChance,
                        std::uniform_real_distribution<float>& biasMutRate,
                        float weightMutChance,
                        std::uniform_real_distribution<float>& weightMutRate)
@@ -43,14 +43,14 @@ public:
     }
 
     template<unsigned int outputId>
-    inline float getOutput() const
+    float getOutput() const
     {
         static_assert (outputId < outputNb, "outputId must be less than outputNb");
         return outputLayer.neurons[outputId].getValue();
     }
 
     template<unsigned int inputId>
-    inline float setInput(float val)
+    float setInput(float val)
     {
         static_assert (inputId < inputNb, "inputId must be less than inputNb");
         return outputLayer.neurons[inputId].setValue(val);
@@ -67,7 +67,7 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
-    inline mutateLayerAndRecurse([[maybe_unused]] float biasMutChance,
+    mutateLayerAndRecurse([[maybe_unused]] float biasMutChance,
                                  [[maybe_unused]] std::uniform_real_distribution<float>& biasMutRate,
                                  [[maybe_unused]] float weightMutChance,
                                  [[maybe_unused]] std::uniform_real_distribution<float>& weightMutRate)
@@ -76,7 +76,7 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb < hiddenLayersCount>::type
-    inline mutateLayerAndRecurse(float biasMutChance,
+    mutateLayerAndRecurse(float biasMutChance,
                                  std::uniform_real_distribution<float>& biasMutRate,
                                  float weightMutChance,
                                  std::uniform_real_distribution<float>& weightMutRate)
@@ -97,7 +97,7 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
-    inline randomizeLayerInitialAndRecurse([[maybe_unused]] std::mt19937& randE,
+    randomizeLayerInitialAndRecurse([[maybe_unused]] std::mt19937& randE,
                                            [[maybe_unused]] std::uniform_real_distribution<float>& biasDist,
                                            [[maybe_unused]] std::uniform_real_distribution<float>& weightDist)
     {
@@ -105,7 +105,7 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb < hiddenLayersCount>::type
-    inline randomizeLayerInitialAndRecurse(std::mt19937& randE,
+    randomizeLayerInitialAndRecurse(std::mt19937& randE,
                                            std::uniform_real_distribution<float>& biasDist,
                                            std::uniform_real_distribution<float>& weightDist)
     {
@@ -118,7 +118,7 @@ private:
                                                    weightDist);
     }
 
-    inline void randomizeInitial(std::mt19937& randE,
+    void randomizeInitial(std::mt19937& randE,
                                  std::uniform_real_distribution<float>& biasDist,
                                  std::uniform_real_distribution<float>& weightDist)
     {
@@ -132,20 +132,20 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb <= 1>::type
-    constexpr inline connectNthHiddenLayerToPreviousAndRecurse()
+    constexpr connectNthHiddenLayerToPreviousAndRecurse()
     {
     }
 
     template<size_t layerNb>
     typename std::enable_if<layerNb >= 2>::type
-    constexpr inline connectNthHiddenLayerToPreviousAndRecurse()
+    constexpr connectNthHiddenLayerToPreviousAndRecurse()
     {
         auto& hiddenLayerPrevious = std::get<layerNb-2>(hiddenLayers);
         auto& hiddenLayerCurrent = std::get<layerNb-1>(hiddenLayers);
         hiddenLayerCurrent.connectInputsFrom(hiddenLayerPrevious);
         connectNthHiddenLayerToPreviousAndRecurse<layerNb-1>();
     }
-    constexpr inline void connectLayers()
+    constexpr void connectLayers()
     {
         if(hiddenLayersCount == 0)
         {
@@ -166,13 +166,13 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
-    constexpr inline processHiddenLayerRecurse()
+    constexpr processHiddenLayerRecurse()
     {
     }
 
     template<size_t layerNb>
     typename std::enable_if<layerNb < hiddenLayersCount>::type
-    constexpr inline processHiddenLayerRecurse()
+    constexpr processHiddenLayerRecurse()
     {
         auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
         hiddenLayerCurrent.update();

@@ -21,7 +21,7 @@ struct Layer
         }
     }
 
-    inline void randomizeInitial(std::mt19937& randE,
+    void randomizeInitial(std::mt19937& randE,
                                  std::uniform_real_distribution<float>& biasDist,
                                  std::uniform_real_distribution<float>& weightDist)
     {
@@ -33,7 +33,7 @@ struct Layer
         }
     }
 
-    inline void mutate(std::mt19937& randE,
+    void mutate(std::mt19937& randE,
                        std::uniform_real_distribution<float>& positiveNormalizedDist,
                        float biasMutChance,
                        std::uniform_real_distribution<float>& biasMutRate,
@@ -51,7 +51,7 @@ struct Layer
         }
     }
 
-    constexpr inline void update()
+    constexpr void update()
     {
         for(Neuron& neuron : neurons)
         {

@@ -15,27 +15,27 @@ public:
     Neuron& operator=(Neuron&& other) noexcept= default;
     ~Neuron() = default;
 
-    inline void addInput(const Neuron& inputNeuron, float weight)
+    void addInput(const Neuron& inputNeuron, float weight)
     {
         inputs.emplace_back(inputNeuron, weight);
     }
 
-    inline void reserveInputs(size_t size)
+    void reserveInputs(size_t size)
     {
         inputs.reserve(size);
     }
 
-    inline float getValue() const
+    float getValue() const
     {
         return value;
     }
 
-    inline float setValue(float val)
+    float setValue(float val)
     {
         return value = val;
     }
 
-    inline void update()
+    void update()
     {
         value = 0.0;
         for(const Connection& input : inputs)
@@ -46,7 +46,7 @@ public:
         value = std::tanh(value);
     }
 
-    inline void mutate(std::mt19937& randE,
+    void mutate(std::mt19937& randE,
                        std::uniform_real_distribution<float>& positiveNormalizedDist,
                        float biasMutChance,
                        std::uniform_real_distribution<float>& biasMutRate,
@@ -86,7 +86,7 @@ public:
         }
     }
 
-    inline void randomizeInitial(std::mt19937& randE,
+    void randomizeInitial(std::mt19937& randE,
                                  std::uniform_real_distribution<float>& biasDist,
                                  std::uniform_real_distribution<float>& weightDist)
     {
