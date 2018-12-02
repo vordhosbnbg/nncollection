@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "normalizedvalue.h"
 
 template<typename T>
@@ -27,6 +28,16 @@ void testSpecific(float min, float max, float nMin, float nMax, float test1, flo
 template<typename T>
 void testNormalization()
 {
+    NormalizedValue<float> nv(-1,1,-1,1);
+    float initial = 0.552142521f;
+    nv.setNormalized(initial);
+    float result = nv.get();
+    float diff = fabs(result - initial);
+    if(diff > std::numeric_limits<float>::epsilon())
+    {
+        std::cout << "Error while converting normalized value! " << std::endl;
+    }
+
     testSpecific<T>(0, 1000, 0, 1, 600, -600, 1600, -1600);
     testSpecific<T>(-1000, 1000, 0, 1, 600, -600, 1600, -1600);
     testSpecific<T>(50, 100, -2, 2, 50, 75, -75, 99);

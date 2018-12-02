@@ -10,7 +10,8 @@
 
 template<typename Network,
          size_t agentsNb,
-         size_t keepBestNb>
+         size_t keepBestNb,
+         unsigned int restSurvivalChance>
 class GeneticSimulation
 {
 public:
@@ -66,6 +67,7 @@ public:
                 processAllAgents();
                 evaluateFitnessForAllAgents(entry);
             }
+
             if(printInfo)
             {
                 t2 = std::chrono::high_resolution_clock::now();
@@ -209,16 +211,30 @@ private:
     void removeWorstAndCloneBestWithMutation()
     {
         size_t bestIndex = 0;
-        std::uniform_real_distribution<float> mutRate(-0.3,0.3);
+        std::uniform_real_distribution<float> mutRate(-1,1);
+        std::uniform_int_distribution<unsigned int> worstSurvivalChance(0,100);
+        nbRestSurvived = 0;
+
         for(size_t index = keepBestNb; index < agentsNb; ++index)
         {
             if(bestIndex>keepBestNb)
             {
                 bestIndex = 0;
             }
-            agents[index] = agents[bestIndex];
-            agents[index].net.mutate(0.1, mutRate, 0.1, mutRate);
-            ++bestIndex;
+            unsigned int canPoorAgentSurvive = worstSurvivalChance(re);
+            if(canPoorAgentSurvive > restSurvivalChance)
+            {
+                // tough chance - we obliterate it and replace it with a mutated copy of one of the best
+                agents[index] = agents[bestIndex];
+                agents[index].net.mutate(0.1, mutRate, 0.1, mutRate);
+                ++bestIndex;
+            }
+            else
+            {
+                // it survived but has to mutate
+                agents[index].net.mutate(0.1, mutRate, 0.1, mutRate);
+                nbRestSurvived++;
+            }
         }
     }
 
@@ -243,6 +259,7 @@ private:
     void printEpochStatistics(unsigned int epochN)
     {
         std::cout << "\n\n================ Epoch " << epochN << "================" << std::endl;
+        std::cout << nbRestSurvived << " lucky agents survived despite doing poorly" << std::endl;
         printFitnessInfo();
     }
 
@@ -253,4 +270,5 @@ private:
     std::vector<NormalizedValue<float>> inputs;
     std::vector<NormalizedValue<float>> outputs;
     bool printInfo{false};
+    unsigned int nbRestSurvived{};
 };

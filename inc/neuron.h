@@ -18,6 +18,7 @@ public:
     {
         value = other.value;
         bias = other.bias;
+        inputs.clear();
         return *this;
     }
     Neuron(Neuron&& other) noexcept :
@@ -25,7 +26,7 @@ public:
         bias(other.bias)
     {
     }
-    Neuron& operator=(Neuron&& other)
+    Neuron& operator=(Neuron&& other) noexcept
     {
         value = other.value;
         bias = other.bias;
