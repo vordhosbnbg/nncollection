@@ -5,21 +5,9 @@
 
 #include "neuron.h"
 
-template <unsigned int Nb>
+template <size_t Nb>
 struct Layer
 {
-    template <unsigned int otherLayerNeuronNb>
-    constexpr void connectInputsFrom(Layer<otherLayerNeuronNb>& otherLayer)
-    {
-        for(size_t cnt = 0; cnt < Nb; ++cnt)
-        {
-            neurons[cnt].reserveInputs(otherLayerNeuronNb);
-            for(size_t otherCnt = 0; otherCnt < otherLayerNeuronNb; ++otherCnt)
-            {
-                neurons[cnt].addInput(otherLayer.neurons[otherCnt], 0.0);
-            }
-        }
-    }
 
     void randomizeInitial(std::mt19937& randE,
                           std::uniform_real_distribution<float>& biasDist,
@@ -51,11 +39,26 @@ struct Layer
         }
     }
 
-    constexpr void update()
+    template<size_t PrevLayerNeurons>
+    constexpr void update(const Layer<PrevLayerNeurons>& prevLayer)
     {
         for(Neuron& neuron : neurons)
         {
-            neuron.update();
+            neuron.updateInit();
+            for(size_t inputIdx = 0; inputIdx < prevLayer.getNeuronNb(); ++inputIdx)
+            {
+                neuron.updateFromInput(inputIdx, prevLayer.neurons[inputIdx]);
+            }
+            neuron.updateEnd();
+        }
+    }
+
+    template<size_t PrevLayerNeurons>
+    constexpr void addInputs([[maybe_unused]] const Layer<PrevLayerNeurons>& prevLayer)
+    {
+        for(Neuron& neuron : neurons)
+        {
+            neuron.resizeInputs(PrevLayerNeurons);
         }
     }
 

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <thread>
 #include "agent.h"
 #include "normalizedvalue.h"
 #include "testdata.h"
@@ -32,6 +33,7 @@ public:
         {
             outputs.emplace_back(NormalizedValue<float>(-1,1,-1,1));
         }
+        hwConcurency = std::thread::hardware_concurrency();
     }
 
     template<unsigned int inputId>
@@ -48,6 +50,16 @@ public:
         outputs[outputId].setMax(max);
     }
 
+    void trainAgentRange(size_t agentMin, size_t agentMax)
+    {
+        for(const typename decltype(testData.data)::value_type& entry : testData.data)
+        {
+            setAllAgentInputs(entry, agentMin, agentMax);
+            processAllAgents(agentMin, agentMax);
+            evaluateFitnessForAllAgents(entry, agentMin, agentMax);
+        }
+    }
+
 
     void train(unsigned int epochs, bool printDebugInfo = false)
     {
@@ -57,15 +69,32 @@ public:
             setMaxFitnessForAgents(testData.data.size());
             std::chrono::high_resolution_clock::time_point t1;
             std::chrono::high_resolution_clock::time_point t2;
+
             if(printInfo)
             {
                 t1 = std::chrono::high_resolution_clock::now();
             }
-            for(const typename decltype(testData.data)::value_type& entry : testData.data)
+
+            for(unsigned int threadId = 0; threadId <= hwConcurency; ++threadId)
             {
-                setAllAgentInputs(entry);
-                processAllAgents();
-                evaluateFitnessForAllAgents(entry);
+                //std::cout << "Starting thread with id " << threadId << std::endl;
+                size_t agentRange = agents.size() / hwConcurency;
+                size_t agentMin = agentRange * threadId;
+                if(threadId == hwConcurency)
+                {
+                    agentRange = agents.size() % hwConcurency;
+                }
+                size_t agentMax = agentMin + agentRange;
+                //std::cout << "Processing agents from " << agentMin << " to " << agentMax-1 << std::endl;
+
+                workerThreads.emplace_back([&, agentMin, agentMax]{trainAgentRange(agentMin, agentMax);});
+            }
+            for(std::thread& workerThread : workerThreads)
+            {
+                if(workerThread.joinable())
+                {
+                    workerThread.join();
+                }
             }
 
             if(printInfo)
@@ -122,10 +151,11 @@ private:
         }
     }
 
-    void evaluateFitnessForAllAgents(const typename decltype(testData.data)::value_type& entry)
+    void evaluateFitnessForAllAgents(const typename decltype(testData.data)::value_type& entry, size_t agentMin, size_t agentMax)
     {
-        for(Agent<Network>& agent : agents)
+        for(size_t idx = agentMin; idx < agentMax; ++idx)
         {
+            Agent<Network>& agent = agents[idx];
             evaluateFitness(agent, entry);
         }
     }
@@ -151,20 +181,23 @@ private:
         setInputAndRecurse<0>(agent, entryInputs);
     }
 
-    void setAllAgentInputs(const typename decltype(testData.data)::value_type& entry)
+    void setAllAgentInputs(const typename decltype(testData.data)::value_type& entry, size_t agentMin, size_t agentMax)
     {
-        for(Agent<Network>& agent : agents)
+        for(size_t idx = agentMin; idx < agentMax; ++idx)
         {
+            Agent<Network>& agent = agents[idx];
             setInputsForAgent(agent, entry);
         }
     }
 
-    void processAllAgents()
+    void processAllAgents(size_t agentMin, size_t agentMax)
     {
-        for(Agent<Network>& agent : agents)
+        for(size_t idx = agentMin; idx < agentMax; ++idx)
         {
+            Agent<Network>& agent = agents[idx];
             agent.net.process();
         }
+
     }
 
     void setMaxFitnessForAgents(unsigned int dataSetSize)
@@ -215,6 +248,8 @@ private:
         std::uniform_int_distribution<unsigned int> worstSurvivalChance(0,100);
         nbRestSurvived = 0;
 
+        //std::cout << "bestIndex = " << bestIndex << std::endl;
+
         for(size_t index = keepBestNb; index < agentsNb; ++index)
         {
             if(bestIndex>keepBestNb)
@@ -222,8 +257,10 @@ private:
                 bestIndex = 0;
             }
             unsigned int canPoorAgentSurvive = worstSurvivalChance(re);
+            //std::cout << "Can poor agent idx " << index << " survive? ";
             if(canPoorAgentSurvive > restSurvivalChance)
             {
+                //std::cout << "No - replace it with a mutated clone of one of the best agents idx " << bestIndex;
                 // tough chance - we obliterate it and replace it with a mutated copy of one of the best
                 agents[index] = agents[bestIndex];
                 agents[index].net.mutate(0.1, mutRate, 0.1, mutRate);
@@ -231,6 +268,7 @@ private:
             }
             else
             {
+                //std::cout << "Yes - but it has to mutate";
                 // it survived but has to mutate
                 agents[index].net.mutate(0.1, mutRate, 0.1, mutRate);
                 nbRestSurvived++;
@@ -269,6 +307,8 @@ private:
     std::vector<Agent<Network>> agents;
     std::vector<NormalizedValue<float>> inputs;
     std::vector<NormalizedValue<float>> outputs;
+    unsigned int hwConcurency;
+    std::vector<std::thread> workerThreads;
     bool printInfo{false};
     unsigned int nbRestSurvived{};
 };

@@ -11,7 +11,7 @@ class FFNetwork
 public:
     constexpr FFNetwork(std::mt19937& randomEngine) : re(randomEngine)
     {
-        connectLayers();
+        addInputsToHiddenLayerRecurse<0>(inputLayer);
         randomizeInitial(re,
                          _normalizedDist,
                          _normalizedDist);
@@ -25,7 +25,6 @@ public:
         _normalizedDist(other._normalizedDist),
         _positiveNormalizedDist(other._normalizedDist)
     {
-        connectLayers();
     }
     FFNetwork& operator=(const FFNetwork& other)
     {
@@ -35,15 +34,13 @@ public:
         hiddenLayers = other.hiddenLayers;
         _normalizedDist = other._normalizedDist;
         _positiveNormalizedDist = other._normalizedDist;
-        connectLayers();
         return *this;
     }
 
 
     constexpr void process()
     {
-        processHiddenLayerRecurse<0>();
-        outputLayer.update();
+        processHiddenLayerRecurse<0, inputNb>(inputLayer);
     }
 
     void mutate(float biasMutChance,
@@ -161,53 +158,50 @@ private:
                                      weightDist);
     }
 
-    template<size_t layerNb>
-    typename std::enable_if<layerNb <= 1>::type
-    constexpr connectNthHiddenLayerToPreviousAndRecurse()
-    {
-    }
-
-    template<size_t layerNb>
-    typename std::enable_if<layerNb >= 2>::type
-    constexpr connectNthHiddenLayerToPreviousAndRecurse()
-    {
-        auto& hiddenLayerPrevious = std::get<layerNb-2>(hiddenLayers);
-        auto& hiddenLayerCurrent = std::get<layerNb-1>(hiddenLayers);
-        hiddenLayerCurrent.connectInputsFrom(hiddenLayerPrevious);
-        connectNthHiddenLayerToPreviousAndRecurse<layerNb-1>();
-    }
-    constexpr void connectLayers()
-    {
-        if(hiddenLayersCount == 0)
-        {
-            outputLayer.connectInputsFrom(inputLayer);
-        }
-        else
-        {
-            auto& hiddenLayerFirst = std::get<0>(hiddenLayers);
-            auto& hiddenLayerLast = std::get<hiddenLayersCount-1>(hiddenLayers);
-            hiddenLayerFirst.connectInputsFrom(inputLayer);
-            outputLayer.connectInputsFrom(hiddenLayerLast);
-        }
-        if(hiddenLayersCount > 1)
-        {
-            connectNthHiddenLayerToPreviousAndRecurse<hiddenLayersCount>();
-        }
-    }
-
-    template<size_t layerNb>
+    template<size_t layerNb, size_t prevLayerNeuronNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
-    constexpr processHiddenLayerRecurse()
+    constexpr processHiddenLayerRecurse(const Layer<prevLayerNeuronNb>& prevLayer)
     {
+        outputLayer.update(prevLayer);
     }
 
-    template<size_t layerNb>
-    typename std::enable_if<layerNb < hiddenLayersCount>::type
-    constexpr processHiddenLayerRecurse()
+//    template<size_t layerNb, size_t prevLayerNeuronNb>
+//    typename std::enable_if<(layerNb == 0) && (layerNb < hiddenLayersCount)>::type
+//    constexpr processHiddenLayerRecurse(const Layer<prevLayerNeuronNb>& prevLayer)
+//    {
+
+//        auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
+
+//        hiddenLayerCurrent.update(inputLayer);
+//        processHiddenLayerRecurse<layerNb+1>(inputLayer);
+//    }
+
+    template<size_t layerNb, size_t prevLayerNeuronNb>
+    typename std::enable_if< layerNb < hiddenLayersCount >::type
+    constexpr processHiddenLayerRecurse(const Layer<prevLayerNeuronNb>& prevLayer)
     {
         auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
-        hiddenLayerCurrent.update();
-        processHiddenLayerRecurse<layerNb+1>();
+
+        hiddenLayerCurrent.update(prevLayer);
+        processHiddenLayerRecurse<layerNb+1>(hiddenLayerCurrent);
     }
+
+    template<size_t layerNb, size_t prevLayerNeuronNb>
+    typename std::enable_if< layerNb == hiddenLayersCount >::type
+    constexpr addInputsToHiddenLayerRecurse(const Layer<prevLayerNeuronNb>& prevLayer)
+    {
+        outputLayer.addInputs(prevLayer);
+    }
+
+    template<size_t layerNb, size_t prevLayerNeuronNb>
+    typename std::enable_if< layerNb < hiddenLayersCount >::type
+    constexpr addInputsToHiddenLayerRecurse(const Layer<prevLayerNeuronNb>& prevLayer)
+    {
+        auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
+
+        hiddenLayerCurrent.addInputs(prevLayer);
+        addInputsToHiddenLayerRecurse<layerNb+1>(hiddenLayerCurrent);
+    }
+
 
 };

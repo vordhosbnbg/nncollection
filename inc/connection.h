@@ -5,8 +5,7 @@ class Neuron;
 
 struct Connection
 {
-    Connection(const Neuron& neuron, float weight): inputNeuron(neuron), inputWeight(weight) {}
+    Connection( float weight): inputWeight(weight) {}
 
-    const Neuron& inputNeuron;
     float inputWeight;
 };

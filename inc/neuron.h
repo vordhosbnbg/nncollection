@@ -9,40 +9,26 @@ class Neuron
 {
 public:
     Neuron() = default;
-    Neuron(const Neuron& other) :
-        value(other.value),
-        bias(other.bias)
-    {
-    }
-    Neuron& operator=(const Neuron& other)
-    {
-        value = other.value;
-        bias = other.bias;
-        inputs.clear();
-        return *this;
-    }
-    Neuron(Neuron&& other) noexcept :
-        value(other.value),
-        bias(other.bias)
-    {
-    }
-    Neuron& operator=(Neuron&& other) noexcept
-    {
-        value = other.value;
-        bias = other.bias;
-        return *this;
-    }
+    Neuron(const Neuron& other) = default;
+    Neuron& operator=(const Neuron& other) = default;
+    Neuron(Neuron&& other) noexcept = default;
+    Neuron& operator=(Neuron&& other) = default;
 
     ~Neuron() = default;
 
-    void addInput(const Neuron& inputNeuron, float weight)
+    void addInput(float weight)
     {
-        inputs.emplace_back(inputNeuron, weight);
+        inputs.emplace_back( weight);
     }
 
     void reserveInputs(size_t size)
     {
         inputs.reserve(size);
+    }
+
+    void resizeInputs(size_t size)
+    {
+        inputs.resize(size, 0);
     }
 
     float getValue() const
@@ -55,13 +41,18 @@ public:
         return value = val;
     }
 
-    void update()
+    void updateInit()
     {
         value = 0.0;
-        for(const Connection& input : inputs)
-        {
-            value += input.inputNeuron.value * input.inputWeight;
-        }
+    }
+
+    void updateFromInput(unsigned int inputNb, const Neuron& inputNeuron)
+    {
+        value += inputNeuron.value * inputs[inputNb].inputWeight;
+    }
+
+    void updateEnd()
+    {
         value += bias;
         value = std::tanh(value);
     }
