@@ -263,14 +263,14 @@ private:
                 //std::cout << "No - replace it with a mutated clone of one of the best agents idx " << bestIndex;
                 // tough chance - we obliterate it and replace it with a mutated copy of one of the best
                 agents[index] = agents[bestIndex];
-                agents[index].net.mutate(0.1, mutRate, 0.1, mutRate);
+                agents[index].net.mutate(0.01, mutRate, 0.01, mutRate);
                 ++bestIndex;
             }
             else
             {
                 //std::cout << "Yes - but it has to mutate";
                 // it survived but has to mutate
-                agents[index].net.mutate(0.1, mutRate, 0.1, mutRate);
+                agents[index].net.mutate(0.5, mutRate, 0.5, mutRate);
                 nbRestSurvived++;
             }
         }

@@ -5,6 +5,7 @@
 
 #include "connection.h"
 
+
 class Neuron
 {
 public:
@@ -106,6 +107,22 @@ public:
         {
             connection.inputWeight = weightDist(randE);
         }
+    }
+
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+        archive.load("value", value);
+        archive.load("bias", bias);
+        archive.load("inputs", inputs);
+    }
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+        archive.save("value", value);
+        archive.save("bias", bias);
+        archive.save("inputs", inputs);
     }
 
 private:

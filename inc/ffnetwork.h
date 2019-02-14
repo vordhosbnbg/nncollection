@@ -84,6 +84,22 @@ public:
         return  outputNb;
     }
 
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+        archive.load("inputLayer", inputLayer);
+        loadHiddenLayerRecursive<0>(archive);
+        archive.load("outputLayer", outputLayer);
+    }
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+        archive.save("inputLayer", inputLayer);
+        saveHiddenLayerRecursive<0>(archive);
+        archive.save("outputLayer", outputLayer);
+    }
+
 private:
     std::mt19937& re;
     Layer<inputNb> inputLayer;
@@ -92,6 +108,41 @@ private:
     static constexpr size_t hiddenLayersCount = std::tuple_size<decltype(hiddenLayers)>::value;
     std::uniform_real_distribution<float> _normalizedDist{-1,1};
     std::uniform_real_distribution<float> _positiveNormalizedDist{0,1};
+
+    template<size_t layerNb, typename Archive>
+    typename std::enable_if< layerNb == hiddenLayersCount >::type
+    constexpr loadHiddenLayerRecursive([[maybe_unused]] Archive& archive)
+    {
+    }
+
+    template<size_t layerNb, typename Archive>
+    typename std::enable_if< layerNb < hiddenLayersCount >::type
+    constexpr loadHiddenLayerRecursive(Archive& archive)
+    {
+        auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
+
+        std::string hiddenLayerName = "hiddenLayer_" + std::to_string(layerNb);
+        archive.load(hiddenLayerName, hiddenLayerCurrent);
+        loadHiddenLayerRecursive<layerNb+1>(archive);
+    }
+
+    template<size_t layerNb, typename Archive>
+    typename std::enable_if< layerNb == hiddenLayersCount >::type
+    constexpr saveHiddenLayerRecursive([[maybe_unused]] Archive& archive) const
+    {
+    }
+
+    template<size_t layerNb, typename Archive>
+    typename std::enable_if< layerNb < hiddenLayersCount >::type
+    constexpr saveHiddenLayerRecursive(Archive& archive) const
+    {
+        auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
+
+        std::string hiddenLayerName = "hiddenLayer_" + std::to_string(layerNb);
+        archive.save(hiddenLayerName, hiddenLayerCurrent);
+        saveHiddenLayerRecursive<layerNb+1>(archive);
+    }
+
 
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type

@@ -67,6 +67,18 @@ struct Layer
         return Nb;
     }
 
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+        archive.load("neurons", neurons);
+    }
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+        archive.save("neurons", neurons);
+    }
+
     std::array<Neuron, Nb> neurons;
 };
 
