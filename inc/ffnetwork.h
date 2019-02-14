@@ -23,7 +23,7 @@ public:
         outputLayer(other.outputLayer),
         hiddenLayers(other.hiddenLayers),
         _normalizedDist(other._normalizedDist),
-        _positiveNormalizedDist(other._normalizedDist)
+        _positiveNormalizedDist(other._positiveNormalizedDist)
     {
     }
     FFNetwork& operator=(const FFNetwork& other)
@@ -33,7 +33,7 @@ public:
         outputLayer = other.outputLayer;
         hiddenLayers = other.hiddenLayers;
         _normalizedDist = other._normalizedDist;
-        _positiveNormalizedDist = other._normalizedDist;
+        _positiveNormalizedDist = other._positiveNormalizedDist;
         return *this;
     }
 
