@@ -97,6 +97,7 @@ public:
                 }
             }
 
+            sortAllAgentsOnFitness();
             if(printInfo)
             {
                 t2 = std::chrono::high_resolution_clock::now();
@@ -104,9 +105,13 @@ public:
                 printEpochStatistics(currentEpoch);
                 printTimeForProcessingEpoch(actionTime.count());
             }
-            sortAllAgentsOnFitness();
             removeWorstAndCloneBestWithMutation();
         }
+    }
+
+    Network getBestNetwork()
+    {
+        return agents[0].net;
     }
 
     TestData<float, Network::getInputNb(), Network::getOutputNb()> testData;

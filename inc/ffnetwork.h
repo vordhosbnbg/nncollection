@@ -71,7 +71,7 @@ public:
     float setInput(float val)
     {
         static_assert (inputId < inputNb, "inputId must be less than inputNb");
-        return outputLayer.neurons[inputId].setValue(val);
+        return inputLayer.neurons[inputId].setValue(val);
     }
 
     static constexpr unsigned int getInputNb()
