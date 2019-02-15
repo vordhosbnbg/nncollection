@@ -6,6 +6,7 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 #include "agent.h"
 #include "normalizedvalue.h"
@@ -54,12 +55,14 @@ public:
 
     void trainAgentRange(unsigned int threadId, size_t agentMin, size_t agentMax)
     {
-        while(1)
+        while(!wkThreadsCanExit.load())
         {
             std::unique_lock<std::mutex> lk(threadStartMutex);
             cvSync.wait(lk, [&]{ return wkThreadsCanStart[threadId] == true; });
 
             wkThreadsCanStart[threadId] = false;
+            if(wkThreadsCanExit.load())
+                return;
             lk.unlock();
             for(const typename decltype(testData.data)::value_type& entry : testData.data)
             {
@@ -96,7 +99,7 @@ public:
             workerThreads.emplace_back([&, threadId, agentMin, agentMax]{trainAgentRange(threadId, agentMin, agentMax);});
         }
 
-        for(unsigned int currentEpoch = 0; currentEpoch < epochs ; ++currentEpoch)
+        for(unsigned int currentEpoch = 0; currentEpoch <= epochs ; ++currentEpoch)
         {
             setMaxFitnessForAgents(testData.data.size());
             std::chrono::high_resolution_clock::time_point t1;
@@ -115,7 +118,16 @@ public:
                 {
                     wkThreadsCanStart[idx] = true;
                 }
-
+                if(currentEpoch == epochs)
+                {
+                    wkThreadsCanExit.store(true);
+                    cvSync.notify_all();
+                    for(std::thread& workerThread : workerThreads)
+                    {
+                        workerThread.detach();
+                    }
+                    return;
+                }
                 //std::cerr << "Threads can start working " << std::endl;
             }
             cvSync.notify_all();
@@ -134,6 +146,7 @@ public:
             }
             removeWorstAndCloneBestWithMutation();
         }
+
     }
 
     Network getBestNetwork()
@@ -393,6 +406,7 @@ private:
     std::mutex threadEndMutex;
     std::vector<bool> wkThreadsCanStart;
     unsigned int nbThreadsWorking{0};
+    std::atomic<bool> wkThreadsCanExit;
 };
 
 
