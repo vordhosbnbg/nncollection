@@ -29,7 +29,7 @@ template<typename T>
 void testNormalization()
 {
     NormalizedValue<float> nv(-1,1,-1,1);
-    float initial = 0.552142521f;
+    float initial = -0.552142521f;
     nv.setNormalized(initial);
     float result = nv.get();
     float diff = fabs(result - initial);

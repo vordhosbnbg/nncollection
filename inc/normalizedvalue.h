@@ -39,7 +39,7 @@ public:
 
     T get() const
     {
-        T retVal = static_cast<T>((normalizedValue - minValNormalized)*rangeVal + minVal);
+        T retVal = static_cast<T>((normalizedValue - minValNormalized)/reciprocalRangeVal + minVal);
         return retVal;
     }
 

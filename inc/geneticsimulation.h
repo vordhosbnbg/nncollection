@@ -98,6 +98,7 @@ public:
             }
 
             sortAllAgentsOnFitness();
+            saveStats();
             if(printInfo)
             {
                 t2 = std::chrono::high_resolution_clock::now();
@@ -114,6 +115,24 @@ public:
         return agents[0].net;
     }
 
+    void exportStatisticsToCSV(const std::string& filename)
+    {
+        std::ofstream ofs(filename);
+        for(const EpochStatistics& stats : epochStatistics)
+        {
+            ofs << std::setprecision(2) << std::fixed <<
+                   stats.maxFitnessDataset << "," <<
+                   stats.singleBestDatasetFintess << "," <<
+                   stats.avgFitnessDatasetBest << "," <<
+                   stats.avgFitnessDatasetRest << "," <<
+                   stats.maxFintessEntry << "," <<
+                   stats.singleBestEntryFitness << "," <<
+                   stats.avgFitnessEntryBest << "," <<
+                   stats.avgFitnessEntryRest << "," <<
+                   std::endl;
+        }
+    }
+
     TestData<float, Network::getInputNb(), Network::getOutputNb()> testData;
 
 private:
@@ -128,7 +147,6 @@ private:
         return fitness;
     }
 
-    float maxFitness{};
 
     template<unsigned int outputId>
     typename std::enable_if<outputId == Network::getOutputNb()>::type
@@ -249,7 +267,7 @@ private:
     void removeWorstAndCloneBestWithMutation()
     {
         size_t bestIndex = 0;
-        std::uniform_real_distribution<float> mutRate(-1,1);
+        std::normal_distribution<float> mutRate(0,0.3);
         std::uniform_int_distribution<unsigned int> worstSurvivalChance(0,100);
         nbRestSurvived = 0;
 
@@ -287,16 +305,31 @@ private:
         std::cout << "Time per agent per data entry: " << std::fixed << (timeInSec / agentsNb * 1000000000 / testData.data.size()) << " ns" << std::endl;
     }
 
+    void saveStats()
+    {
+        EpochStatistics stats;
+        stats.maxFitnessDataset = maxFitness;
+        stats.singleBestDatasetFintess = agents[0].fitness;
+        stats.avgFitnessDatasetBest = getAverageFitnessFromBest();
+        stats.avgFitnessDatasetRest = getAverageFitnessFromRest();
+        stats.maxFintessEntry = stats.singleBestDatasetFintess / testData.data.size();
+        stats.singleBestEntryFitness = stats.singleBestDatasetFintess / testData.data.size();
+        stats.avgFitnessEntryBest = stats.avgFitnessDatasetBest / testData.data.size();
+        stats.avgFitnessEntryRest = stats.avgFitnessDatasetRest / testData.data.size();
+        epochStatistics.emplace_back(stats);
+    }
+
     void printFitnessInfo()
     {
-        std::cout << "MaxFitness (dataset): " << std::fixed << maxFitness << std::endl;
-        std::cout << "Average fitness from best (dataset): " << keepBestNb << " agents: " << std::fixed << getAverageFitnessFromBest() << std::endl;
-        std::cout << "Average fitness from rest (dataset): " << (agentsNb - keepBestNb) << " agents: " << std::fixed << getAverageFitnessFromRest() << std::endl;
-        std::cout << "Average MaxFitness (entry): " << std::fixed << (maxFitness / testData.data.size()) << std::endl;
-        std::cout << "Average fitness from best (entry): " << keepBestNb << " agents: " << std::fixed << (getAverageFitnessFromBest() / testData.data.size()) << std::endl;
-        std::cout << "Average fitness from rest (entry): " << (agentsNb - keepBestNb) << " agents: " << std::fixed << (getAverageFitnessFromRest() / testData.data.size()) << std::endl;
-        std::cout << "\nSinge best fitness (dataset): " << std::fixed << agents[0].fitness << std::endl;
-        std::cout << "Singe best fitness (entry): " << std::fixed << (agents[0].fitness / testData.data.size()) << std::endl;
+        EpochStatistics& stats = epochStatistics.back();
+        std::cout << "MaxFitness (dataset): " << std::fixed << stats.maxFitnessDataset << std::endl;
+        std::cout << "Average fitness from best (dataset): " << keepBestNb << " agents: " << std::fixed << stats.avgFitnessDatasetBest << std::endl;
+        std::cout << "Average fitness from rest (dataset): " << (agentsNb - keepBestNb) << " agents: " << std::fixed << stats.avgFitnessDatasetRest << std::endl;
+        std::cout << "MaxFitness (entry): " << std::fixed << stats.maxFintessEntry << std::endl;
+        std::cout << "Average fitness from best (entry): " << keepBestNb << " agents: " << std::fixed << stats.avgFitnessEntryBest << std::endl;
+        std::cout << "Average fitness from rest (entry): " << (agentsNb - keepBestNb) << " agents: " << std::fixed << stats.avgFitnessEntryRest << std::endl;
+        std::cout << "\nSinge best fitness (dataset): " << std::fixed << stats.singleBestDatasetFintess << std::endl;
+        std::cout << "Singe best fitness (entry): " << std::fixed << stats.maxFintessEntry << std::endl;
     }
 
     void printEpochStatistics(unsigned int epochN)
@@ -306,6 +339,17 @@ private:
         printFitnessInfo();
     }
 
+    struct EpochStatistics
+    {
+        float maxFitnessDataset;
+        float singleBestDatasetFintess;
+        float avgFitnessDatasetBest;
+        float avgFitnessDatasetRest;
+        float maxFintessEntry;
+        float singleBestEntryFitness;
+        float avgFitnessEntryBest;
+        float avgFitnessEntryRest;
+    };
 
     std::random_device rd;
     std::mt19937 re{rd()};
@@ -316,4 +360,8 @@ private:
     std::vector<std::thread> workerThreads;
     bool printInfo{false};
     unsigned int nbRestSurvived{};
+    float maxFitness{};
+    std::vector<EpochStatistics> epochStatistics;
 };
+
+

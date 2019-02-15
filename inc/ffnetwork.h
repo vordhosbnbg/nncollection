@@ -44,9 +44,9 @@ public:
     }
 
     void mutate(float biasMutChance,
-                std::uniform_real_distribution<float>& biasMutRate,
+                std::normal_distribution<float>& biasMutRate,
                 float weightMutChance,
-                std::uniform_real_distribution<float>& weightMutRate)
+                std::normal_distribution<float>& weightMutRate)
     {
         mutateLayerAndRecurse<0>(biasMutChance,
                                  biasMutRate,
@@ -147,18 +147,18 @@ private:
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
     mutateLayerAndRecurse([[maybe_unused]] float biasMutChance,
-                          [[maybe_unused]] std::uniform_real_distribution<float>& biasMutRate,
+                          [[maybe_unused]] std::normal_distribution<float>& biasMutRate,
                           [[maybe_unused]] float weightMutChance,
-                          [[maybe_unused]] std::uniform_real_distribution<float>& weightMutRate)
+                          [[maybe_unused]] std::normal_distribution<float>& weightMutRate)
     {
     }
 
     template<size_t layerNb>
     typename std::enable_if<layerNb < hiddenLayersCount>::type
     mutateLayerAndRecurse(float biasMutChance,
-                                 std::uniform_real_distribution<float>& biasMutRate,
+                                 std::normal_distribution<float>& biasMutRate,
                                  float weightMutChance,
-                                 std::uniform_real_distribution<float>& weightMutRate)
+                                 std::normal_distribution<float>& weightMutRate)
     {
         auto& hiddenLayerCurrent = std::get<layerNb>(hiddenLayers);
         hiddenLayerCurrent.mutate(re,

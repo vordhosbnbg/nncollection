@@ -24,9 +24,9 @@ struct Layer
     void mutate(std::mt19937& randE,
                        std::uniform_real_distribution<float>& positiveNormalizedDist,
                        float biasMutChance,
-                       std::uniform_real_distribution<float>& biasMutRate,
+                       std::normal_distribution<float>& biasMutRate,
                        float weightMutChance,
-                       std::uniform_real_distribution<float>& weightMutRate)
+                       std::normal_distribution<float>& weightMutRate)
     {
         for(Neuron& neuron : neurons)
         {

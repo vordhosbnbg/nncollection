@@ -18,7 +18,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
             200 /*keep best*/,
             10 /*survival chance of rest*/> gs;
     //constexpr size_t nbEntries = 1000;
-    constexpr unsigned int nbEpochs= 1000;
+    constexpr unsigned int nbEpochs= 2000;
 
     // prepare test data - sinf() function
     float inpX = -3.14;
@@ -63,5 +63,6 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         std::pair<float, float>& plotEntry = it->second;
         ofs << std::setprecision(2) << std::fixed << xVal << "," << plotEntry.first << "," << plotEntry.second << std::endl;
     }
+    gs.exportStatisticsToCSV("sin_x_train_test_epoch_stats.csv");
     return 0;
 }

@@ -17,7 +17,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     net.process();
     std::cout << "Output is: " << std::fixed << net.getOutput<0>() << std::endl;
     std::cout << "Mutating (small chance)..." << std::endl;
-    std::uniform_real_distribution<float> small_change(-0.1,0.1);
+    std::normal_distribution<float> small_change(0,0.1);
     net.mutate(0.1,
                small_change,
                0.1,
@@ -26,7 +26,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     std::cout << "Output is: " << std::fixed << net.getOutput<0>() << std::endl;
     std::cout << "Mutating (big chance)..." << std::endl;
 
-    std::uniform_real_distribution<float> big_change(-0.5,0.5);
+    std::normal_distribution<float> big_change(0,0.3);
     net.mutate(0.5,
                big_change,
                0.5,

@@ -13,7 +13,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
     using Net = FFNetwork<5,1,4,3,2>;
 
-    std::uniform_real_distribution<float> small_change(-0.1,0.1);
+    std::normal_distribution<float> small_change(0,0.3);
     std::vector<Net> vecNets;
     vecNets.reserve(netNb);
     for(size_t ind = 0; ind < netNb; ++ind)
