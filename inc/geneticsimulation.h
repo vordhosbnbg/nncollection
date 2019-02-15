@@ -5,6 +5,8 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 #include "agent.h"
 #include "normalizedvalue.h"
 #include "testdata.h"
@@ -50,13 +52,27 @@ public:
         outputs[outputId].setMax(max);
     }
 
-    void trainAgentRange(size_t agentMin, size_t agentMax)
+    void trainAgentRange(unsigned int threadId, size_t agentMin, size_t agentMax)
     {
-        for(const typename decltype(testData.data)::value_type& entry : testData.data)
+        while(1)
         {
-            setAllAgentInputs(entry, agentMin, agentMax);
-            processAllAgents(agentMin, agentMax);
-            evaluateFitnessForAllAgents(entry, agentMin, agentMax);
+            std::unique_lock<std::mutex> lk(threadStartMutex);
+            cvSync.wait(lk, [&]{ return wkThreadsCanStart[threadId] == true; });
+
+            wkThreadsCanStart[threadId] = false;
+            lk.unlock();
+            for(const typename decltype(testData.data)::value_type& entry : testData.data)
+            {
+                setAllAgentInputs(entry, agentMin, agentMax);
+                processAllAgents(agentMin, agentMax);
+                evaluateFitnessForAllAgents(entry, agentMin, agentMax);
+            }
+            {
+                std::lock_guard<std::mutex> lk2(threadEndMutex);
+                nbThreadsWorking--;
+                //std::cerr << "Thread finished - remaining workers " << nbThreadsWorking << std::endl;
+            }
+            cvSync.notify_all();
         }
     }
 
@@ -64,6 +80,22 @@ public:
     void train(unsigned int epochs, bool printDebugInfo = false)
     {
         printInfo = printDebugInfo;
+        wkThreadsCanStart.resize(hwConcurency+1, false);
+        for(unsigned int threadId = 0; threadId <= hwConcurency; ++threadId)
+        {
+            //std::cout << "Starting thread with id " << threadId << std::endl;
+            size_t agentRange = agents.size() / hwConcurency;
+            size_t agentMin = agentRange * threadId;
+            if(threadId == hwConcurency)
+            {
+                agentRange = agents.size() % hwConcurency;
+            }
+            size_t agentMax = agentMin + agentRange;
+            //std::cout << "Processing agents from " << agentMin << " to " << agentMax-1 << std::endl;
+
+            workerThreads.emplace_back([&, threadId, agentMin, agentMax]{trainAgentRange(threadId, agentMin, agentMax);});
+        }
+
         for(unsigned int currentEpoch = 0; currentEpoch < epochs ; ++currentEpoch)
         {
             setMaxFitnessForAgents(testData.data.size());
@@ -75,27 +107,21 @@ public:
                 t1 = std::chrono::high_resolution_clock::now();
             }
 
-            for(unsigned int threadId = 0; threadId <= hwConcurency; ++threadId)
             {
-                //std::cout << "Starting thread with id " << threadId << std::endl;
-                size_t agentRange = agents.size() / hwConcurency;
-                size_t agentMin = agentRange * threadId;
-                if(threadId == hwConcurency)
+                std::lock_guard<std::mutex> lk(threadStartMutex);
+                std::lock_guard<std::mutex> lk2(threadEndMutex);
+                nbThreadsWorking = hwConcurency + 1;
+                for(size_t idx = 0; idx < wkThreadsCanStart.size(); ++idx)
                 {
-                    agentRange = agents.size() % hwConcurency;
+                    wkThreadsCanStart[idx] = true;
                 }
-                size_t agentMax = agentMin + agentRange;
-                //std::cout << "Processing agents from " << agentMin << " to " << agentMax-1 << std::endl;
 
-                workerThreads.emplace_back([&, agentMin, agentMax]{trainAgentRange(agentMin, agentMax);});
+                //std::cerr << "Threads can start working " << std::endl;
             }
-            for(std::thread& workerThread : workerThreads)
-            {
-                if(workerThread.joinable())
-                {
-                    workerThread.join();
-                }
-            }
+            cvSync.notify_all();
+
+            std::unique_lock<std::mutex> lk(threadEndMutex);
+            cvSync.wait(lk, [&]{ return nbThreadsWorking == 0; });
 
             sortAllAgentsOnFitness();
             saveStats();
@@ -362,6 +388,11 @@ private:
     unsigned int nbRestSurvived{};
     float maxFitness{};
     std::vector<EpochStatistics> epochStatistics;
+    std::condition_variable cvSync;
+    std::mutex threadStartMutex;
+    std::mutex threadEndMutex;
+    std::vector<bool> wkThreadsCanStart;
+    unsigned int nbThreadsWorking{0};
 };
 
 
