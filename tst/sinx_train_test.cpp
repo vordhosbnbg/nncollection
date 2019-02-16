@@ -11,14 +11,14 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     std::random_device rd;
     std::mt19937 re{rd()};
     std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
-    using NetTopology = FFNetwork<1 /*inputs*/,1 /*outputs*/,4 /*HL#1 neurons*/,4 /*HL#2 neurons*/,4 /*HL#3 neurons*/>;
+    using NetTopology = FFNetwork<1 /*inputs*/,1 /*outputs*/,8 /*HL#1 neurons*/,8 /*HL#1 neurons*/,8 /*HL#1 neurons*/,8 /*HL#1 neurons*/,8 /*HL#1 neurons*/,8 /*HL#1 neurons*/>;
     GeneticSimulation<
             NetTopology,
-            2000 /*agents*/,
-            200 /*keep best*/,
+            10000 /*agents*/,
+            1000 /*keep best*/,
             10 /*survival chance of rest*/> gs;
     //constexpr size_t nbEntries = 1000;
-    constexpr unsigned int nbEpochs= 10;
+    constexpr unsigned int nbEpochs= 2000;
 
     // prepare test data - sinf() function
     float inpX = -3.14;
@@ -61,7 +61,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     {
         float xVal = it->first;
         std::pair<float, float>& plotEntry = it->second;
-        ofs << std::setprecision(2) << std::fixed << xVal << "," << plotEntry.first << "," << plotEntry.second << std::endl;
+        ofs << std::setprecision(10) << std::fixed << xVal << "," << plotEntry.first << "," << plotEntry.second << std::endl;
     }
     gs.exportStatisticsToCSV("sin_x_train_test_epoch_stats.csv");
     return 0;

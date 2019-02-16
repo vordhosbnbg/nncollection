@@ -4,7 +4,7 @@
 #include <random>
 
 #include "connection.h"
-
+#include "precomputedtanh.h"
 
 class Neuron
 {
@@ -55,7 +55,7 @@ public:
     void updateEnd()
     {
         value += bias;
-        value = std::tanh(value);
+        value = prec.tanh(value);
     }
 
     void mutate(std::mt19937& randE,
@@ -130,4 +130,6 @@ private:
     float value{0};
     float bias{0};
     std::vector<Connection> inputs;
+    static constexpr PrecomputedTanh<10000,-10,10> prec = PrecomputedTanh<10000,-10,10>();
+
 };

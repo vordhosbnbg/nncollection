@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <iomanip>
 #include <thread>
 #include <mutex>
 #include <atomic>
@@ -84,6 +85,8 @@ public:
     {
         printInfo = printDebugInfo;
         wkThreadsCanStart.resize(hwConcurency+1, false);
+        wkThreadsCanExit.store(false);
+
         for(unsigned int threadId = 0; threadId <= hwConcurency; ++threadId)
         {
             //std::cout << "Starting thread with id " << threadId << std::endl;
@@ -159,7 +162,7 @@ public:
         std::ofstream ofs(filename);
         for(const EpochStatistics& stats : epochStatistics)
         {
-            ofs << std::setprecision(2) << std::fixed <<
+            ofs << std::setprecision(10) << std::fixed <<
                    stats.maxFitnessDataset << "," <<
                    stats.singleBestDatasetFintess << "," <<
                    stats.avgFitnessDatasetBest << "," <<
@@ -351,7 +354,7 @@ private:
         stats.singleBestDatasetFintess = agents[0].fitness;
         stats.avgFitnessDatasetBest = getAverageFitnessFromBest();
         stats.avgFitnessDatasetRest = getAverageFitnessFromRest();
-        stats.maxFintessEntry = stats.singleBestDatasetFintess / testData.data.size();
+        stats.maxFintessEntry = maxFitness / testData.data.size();
         stats.singleBestEntryFitness = stats.singleBestDatasetFintess / testData.data.size();
         stats.avgFitnessEntryBest = stats.avgFitnessDatasetBest / testData.data.size();
         stats.avgFitnessEntryRest = stats.avgFitnessDatasetRest / testData.data.size();
@@ -361,14 +364,14 @@ private:
     void printFitnessInfo()
     {
         EpochStatistics& stats = epochStatistics.back();
-        std::cout << "MaxFitness (dataset): " << std::fixed << stats.maxFitnessDataset << std::endl;
+        std::cout << "MaxFitness (dataset): " <<  std::setprecision(10) <<  std::fixed << stats.maxFitnessDataset << std::endl;
         std::cout << "Average fitness from best (dataset): " << keepBestNb << " agents: " << std::fixed << stats.avgFitnessDatasetBest << std::endl;
         std::cout << "Average fitness from rest (dataset): " << (agentsNb - keepBestNb) << " agents: " << std::fixed << stats.avgFitnessDatasetRest << std::endl;
         std::cout << "MaxFitness (entry): " << std::fixed << stats.maxFintessEntry << std::endl;
         std::cout << "Average fitness from best (entry): " << keepBestNb << " agents: " << std::fixed << stats.avgFitnessEntryBest << std::endl;
         std::cout << "Average fitness from rest (entry): " << (agentsNb - keepBestNb) << " agents: " << std::fixed << stats.avgFitnessEntryRest << std::endl;
         std::cout << "\nSinge best fitness (dataset): " << std::fixed << stats.singleBestDatasetFintess << std::endl;
-        std::cout << "Singe best fitness (entry): " << std::fixed << stats.maxFintessEntry << std::endl;
+        std::cout << "Singe best fitness (entry): " << std::fixed << stats.singleBestEntryFitness << std::endl;
     }
 
     void printEpochStatistics(unsigned int epochN)
