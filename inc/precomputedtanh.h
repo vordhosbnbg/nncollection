@@ -31,21 +31,30 @@ public:
             _data[idx+7] = std::tanh(x8);
             _data[idx+8] = std::tanh(x9);
             _data[idx+9] = std::tanh(x10);
+
         }
+    }
+    constexpr size_t getIndex(float x) const
+    {
+        if(x > maxRange)
+        {
+            x = maxRange;
+        }
+        else if(x < minRange)
+        {
+            x = minRange;
+        }
+        size_t idx = (x - minRange + 0.5 / fractionsPerDigit) * fractionsPerDigit;
+        if(idx >= totalFractions)
+        {
+            idx = totalFractions - 1;
+        }
+        return idx;
     }
 
     constexpr float tanh(float x) const
     {
-        if(x < minRange)
-        {
-            x = minRange;
-        }
-        else if(x > maxRange)
-        {
-            x = maxRange;
-        }
-        size_t idx = (x - minRange) * fractionsPerDigit;
-        return _data[idx];
+        return _data[getIndex(x)];
     }
 private:
     static constexpr size_t totalFractions = (maxRange - minRange) * fractionsPerDigit;

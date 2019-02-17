@@ -14,9 +14,8 @@ struct TanhData
 
 int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
-    constexpr auto prec = PrecomputedTanh<100000,-9,9>();
+    constexpr auto prec = PrecomputedTanh<10000,-9,9>();
 
-    double maxError = 0.0;
 
     std::vector<TanhData> precomputedData;
     std::vector<TanhData> runtimeData;
@@ -25,7 +24,6 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
     precomputedData.resize(numberOfElements);
     runtimeData.resize(numberOfElements);
-
 
     std::chrono::high_resolution_clock::time_point t1;
     std::chrono::high_resolution_clock::time_point t2;
@@ -43,7 +41,8 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
     t2 = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> actionTime = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
-    std::cout << "Time taken for precomputed initialization: " << actionTime.count() << " seconds" << std::endl;
+    std::cout << "Time taken for precomputed initialization: " << actionTime.count() << " s" << std::endl;
+    std::cout << "Single tanh(x): " << actionTime.count() / numberOfElements * 1000000000 << " ns" << std::endl;
 
     std::cout << "Calculating tanh(x) by std::tanh() " << numberOfElements << " times" << std::endl;
     t1 = std::chrono::high_resolution_clock::now();
@@ -58,12 +57,15 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
     t2 = std::chrono::high_resolution_clock::now();
     actionTime = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1);
-    std::cout << "Time taken for runtime initialization: " << actionTime.count() << " seconds" << std::endl;
+    std::cout << "Time taken for runtime initialization: " << actionTime.count() << " s" << std::endl;
+    std::cout << "Single tanh(x): " << actionTime.count() / numberOfElements * 1000000000 << " ns" << std::endl;
 
+    double maxError = 0.0;
     idx=0;
     for(double x = -10.0; x < 10.0; x += 0.00001)
     {
         maxError += std::fabs(runtimeData[idx].y - precomputedData[idx].y);
+        ++idx;
     }
     std::cout << "Total error " << std::fixed << maxError << std::endl;
 
