@@ -309,11 +309,10 @@ private:
     void removeWorstAndCloneBestWithMutation()
     {
         size_t bestIndex = 0;
-        std::normal_distribution<float> mutRate(0,0.3);
+        std::normal_distribution<float> mutRate(0,0.25);
+        std::normal_distribution<float> mutRateStable(0,0.15);
         std::uniform_int_distribution<unsigned int> worstSurvivalChance(0,100);
         nbRestSurvived = 0;
-
-        //std::cout << "bestIndex = " << bestIndex << std::endl;
 
         for(size_t index = keepBestNb; index < agentsNb; ++index)
         {
@@ -321,21 +320,22 @@ private:
             {
                 bestIndex = 0;
             }
-            unsigned int canPoorAgentSurvive = worstSurvivalChance(re);
-            //std::cout << "Can poor agent idx " << index << " survive? ";
-            if(canPoorAgentSurvive > restSurvivalChance)
+            unsigned int canPoorAgentSurvive = 100;
+            if(restSurvivalChance > 0)
             {
-                //std::cout << "No - replace it with a mutated clone of one of the best agents idx " << bestIndex;
+                canPoorAgentSurvive = worstSurvivalChance(re);
+            }
+            if(canPoorAgentSurvive >= restSurvivalChance)
+            {
                 // tough chance - we obliterate it and replace it with a mutated copy of one of the best
                 agents[index] = agents[bestIndex];
-                agents[index].net.mutate(0.01, mutRate, 0.01, mutRate);
+                agents[index].net.mutate(0.05, mutRate, 0.05, mutRate);
                 ++bestIndex;
             }
             else
             {
-                //std::cout << "Yes - but it has to mutate";
                 // it survived but has to mutate
-                agents[index].net.mutate(0.5, mutRate, 0.5, mutRate);
+                agents[index].net.mutate(0.2, mutRate, 0.2, mutRate);
                 nbRestSurvived++;
             }
         }

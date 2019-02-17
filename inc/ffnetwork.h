@@ -26,7 +26,28 @@ public:
         _positiveNormalizedDist(other._positiveNormalizedDist)
     {
     }
+
+    FFNetwork(const FFNetwork&& other) :
+        re(other.re),
+        inputLayer(other.inputLayer),
+        outputLayer(other.outputLayer),
+        hiddenLayers(other.hiddenLayers),
+        _normalizedDist(other._normalizedDist),
+        _positiveNormalizedDist(other._positiveNormalizedDist)
+    {
+    }
     FFNetwork& operator=(const FFNetwork& other)
+    {
+        re = other.re;
+        inputLayer = other.inputLayer;
+        outputLayer = other.outputLayer;
+        hiddenLayers = other.hiddenLayers;
+        _normalizedDist = other._normalizedDist;
+        _positiveNormalizedDist = other._positiveNormalizedDist;
+        return *this;
+    }
+
+    FFNetwork& operator=(const FFNetwork&& other)
     {
         re = other.re;
         inputLayer = other.inputLayer;
