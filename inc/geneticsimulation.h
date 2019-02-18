@@ -152,6 +152,15 @@ public:
 
     }
 
+    Network getNetworkByNumber(size_t nb)
+    {
+        if(nb >= agents.size())
+        {
+            nb = agents.size() - 1;
+        }
+        return agents[nb].net;
+    }
+
     Network getBestNetwork()
     {
         return agents[0].net;

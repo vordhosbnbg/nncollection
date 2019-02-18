@@ -15,14 +15,14 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     GeneticSimulation<
             NetTopology,
             1000 /*agents*/,
-            10 /*keep best*/,
-            0 /*survival chance of rest*/> gs;
+            100 /*keep best*/,
+            5 /*survival chance of rest*/> gs;
     //constexpr size_t nbEntries = 1000;
-    constexpr unsigned int nbEpochs= 10000;
-
+    constexpr unsigned int nbEpochs= 20000;
+    constexpr double pi = 3.14127*2;
     // prepare test data - sinf() function
-    float inpX = -3.14;
-    while(inpX < 3.14)
+    float inpX = -pi;
+    while(inpX <= pi)
     {
         auto& entry = gs.testData.addEntry();
         entry.inputs[0] = inpX;
@@ -30,18 +30,18 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         inpX += 0.01;
     }
 
-    gs.setInputRange<0>(-3.14,3.14);
+    gs.setInputRange<0>(-pi,pi);
     gs.setOutputRange<0>(-1,1);
 
     gs.train(nbEpochs,true);
 
     NetTopology bestNet = gs.getBestNetwork();
-    float x = -3.14;
+    float x = -pi;
     float yExpected = 0;
     float yNet = 0;
-    NormalizedValue<float> inputVal(-3.14, 3.14, -1, 1);
+    NormalizedValue<float> inputVal(-pi, pi, -1, 1);
     std::map<float, std::pair<float,float>> plotData;
-    while(x < 3.14)
+    while(x <= pi)
     {
         yExpected = std::sin(x);
 
@@ -56,6 +56,18 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
     JSONArchive jsonArchive("bestNet.json");
     jsonArchive.write(bestNet);
+    NetTopology net2 = gs.getNetworkByNumber(1);
+    NetTopology net5 = gs.getNetworkByNumber(4);
+    NetTopology net10 = gs.getNetworkByNumber(9);
+
+    JSONArchive jsonNet2("net02.json");
+    jsonNet2.write(net2);
+    JSONArchive jsonNet5("net05.json");
+    jsonNet5.write(net5);
+    JSONArchive jsonNet10("net10.json");
+    jsonNet10.write(net10);
+
+
     std::ofstream ofs("sin_x_train_test_best_results.csv");
     for(auto it = plotData.begin(); it != plotData.end(); ++it)
     {
