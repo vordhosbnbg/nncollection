@@ -90,12 +90,12 @@ int main (int argc, char** argv)
             std::random_device rd;
             std::mt19937 re{rd()};
             std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
-            using NetTopology = FFNetwork<90 /*inputs*/,1 /*outputs*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/>;
+            using NetTopology = FFNetwork<90 /*inputs*/,1 /*outputs*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/>;
             using GenSim =  GeneticSimulation<
                             NetTopology,
-                            1000 /*agents*/,
-                            100 /*keep best*/,
-                            5 /*survival chance of rest*/>;
+                            10000 /*agents*/,
+                            1000 /*keep best*/,
+                            10 /*survival chance of rest*/>;
 
             std::unique_ptr<GenSim> gsPtr;
 
@@ -118,16 +118,16 @@ int main (int argc, char** argv)
             }
 
             GenSim& gs = *gsPtr.get();
-            constexpr unsigned int nbEpochs= 100;
+            constexpr unsigned int nbEpochs = 100;
             // prepare test data - sinf() function
             for(size_t idx = 30; idx < btcData.size(); ++idx)
             {
                 auto& entry = gs.testData.addEntry();
-                for(int daysBack = 30; daysBack > 0; --daysBack)
+                for(int daysBack = 0; daysBack < 30; ++daysBack)
                 {
-                    entry.inputs[0+30-daysBack] = btcData[idx-daysBack].price;
-                    entry.inputs[1+30-daysBack] = btcData[idx-daysBack].volumeFrom;
-                    entry.inputs[2+30-daysBack] = btcData[idx-daysBack].volumeTo;
+                    entry.inputs[daysBack*3+0] = btcData[idx-daysBack].price;
+                    entry.inputs[daysBack*3+1] = btcData[idx-daysBack].volumeFrom;
+                    entry.inputs[daysBack*3+2] = btcData[idx-daysBack].volumeTo;
                 }
                 entry.outputs[0] = btcData[idx].price;
             }
@@ -137,109 +137,117 @@ int main (int argc, char** argv)
             constexpr float minVolRange = 0;
             constexpr float maxVolRange = 1300000000;
             {
-                gs.setInputRange<0+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<0+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<0+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<1+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<1+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<1+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<2+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<2+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<2+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<3+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<3+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<3+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<4+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<4+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<4+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<5+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<5+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<5+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<6+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<6+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<6+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<7+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<7+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<7+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<8+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<8+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<8+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<9+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<9+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<9+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<10+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<10+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<10+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<11+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<11+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<11+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<12+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<12+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<12+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<13+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<13+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<13+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<14+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<14+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<14+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<15+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<15+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<15+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<16+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<16+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<16+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<17+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<17+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<17+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<18+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<18+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<18+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<19+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<19+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<19+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<20+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<20+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<20+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<21+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<21+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<21+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<22+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<22+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<22+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<23+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<23+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<23+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<24+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<24+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<24+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<25+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<25+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<25+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<26+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<26+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<26+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<27+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<27+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<27+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<28+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<28+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<28+2>(-minVolRange,maxVolRange);
-                gs.setInputRange<29+0>(-minBtcRange,maxBtcRange);
-                gs.setInputRange<29+1>(-minVolRange,maxVolRange);
-                gs.setInputRange<29+2>(-minVolRange,maxVolRange);
+                gs.setInputRange<0+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<0+1>(minVolRange,maxVolRange);
+                gs.setInputRange<0+2>(minVolRange,maxVolRange);
+                gs.setInputRange<1*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<1*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<1*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<2*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<2*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<2*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<3*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<3*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<3*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<4*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<4*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<4*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<5*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<5*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<5*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<6*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<6*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<6*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<7*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<7*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<7*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<8*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<8*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<8*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<9*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<9*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<9*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<10*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<10*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<10*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<11*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<11*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<11*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<12*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<12*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<12*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<13*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<13*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<13*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<14*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<14*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<14*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<15*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<15*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<15*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<16*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<16*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<16*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<17*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<17*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<17*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<18*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<18*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<18*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<19*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<19*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<19*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<20*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<20*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<20*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<21*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<21*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<21*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<22*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<22*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<22*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<23*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<23*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<23*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<24*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<24*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<24*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<25*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<25*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<25*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<26*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<26*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<26*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<27*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<27*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<27*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<28*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<28*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<28*3+2>(minVolRange,maxVolRange);
+                gs.setInputRange<29*3+0>(minBtcRange,maxBtcRange);
+                gs.setInputRange<29*3+1>(minVolRange,maxVolRange);
+                gs.setInputRange<29*3+2>(minVolRange,maxVolRange);
                 gs.setOutputRange<0>(minBtcRange,maxBtcRange);
             }
-
+            gs.setStableMutChance(0.1);
             gs.train(nbEpochs,true);
 
             NetTopology bestNet = gs.getBestNetwork();
             NormalizedValue<float> btcVal(minBtcRange, maxBtcRange, -1, 1);
             std::cout << "Training finished - outputing test data along with expected and actual results of best agent" << std::endl;
 
-//            for(auto& entry : gs.testData)
-//            {
+            std::ofstream ofs("btc_usd_train_test_results.csv");
 
-//            }
+            ofs << std::setprecision(10) << std::fixed << "dataIdx,expectedOutput,networkOutput" << std::endl;
+            for(size_t dataIdx = 0; dataIdx < gs.testData.data.size(); ++dataIdx)
+            {
+                auto& dataEntry = gs.testData.data[dataIdx];
+
+                const auto& outputs = gs.processWithBestNetTrainDataAtIndex(dataIdx);
+
+                ofs << std::setprecision(10) << std::fixed << dataIdx << "," << dataEntry.outputs[0] << "," << outputs[0] << std::endl;
+            }
+
             JSONArchive jsonArchive("net01.json");
             jsonArchive.write(bestNet);
             NetTopology net2 = gs.getNetworkByNumber(1);

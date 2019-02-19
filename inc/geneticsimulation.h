@@ -177,6 +177,26 @@ public:
         return agents[0].net;
     }
 
+    std::array<float,Network::getOutputNb()> processWithBestNetTrainDataAtIndex(size_t idx)
+    {
+        std::array<float,Network::getOutputNb()> actualOutputs;
+        if(idx < testData.data.size())
+        {
+            auto& entry = testData.data[idx];
+            Agent<Network>& agent = agents[0];
+            setInputsForAgent(agent, entry);
+            agent.net.process();
+
+            setAndGetOutputAndRecurse<0>(agent,actualOutputs);
+        }
+        return actualOutputs;
+    }
+
+    const std::vector<NormalizedValue<float>>& getOutputs() const
+    {
+        return outputs;
+    }
+
     void exportStatisticsToCSV(const std::string& filename)
     {
         std::ofstream ofs(filename);
@@ -193,6 +213,26 @@ public:
                    stats.avgFitnessEntryRest << "," <<
                    std::endl;
         }
+    }
+
+    void setStableStdDevMutRate(float value)
+    {
+        stableStdDevMutRate = value;
+    }
+
+    void setRestStdDevMutRate(float value)
+    {
+        restStdDevMutRate = value;
+    }
+
+    void setStableMutChance(float value)
+    {
+        stableMutChance = value;
+    }
+
+    void setRestMutChance(float value)
+    {
+        restMutChance = value;
     }
 
     TestData<float, Network::getInputNb(), Network::getOutputNb()> testData;
@@ -329,8 +369,8 @@ private:
     void removeWorstAndCloneBestWithMutation()
     {
         size_t bestIndex = 0;
-        std::normal_distribution<float> mutRate(0,0.25);
-        std::normal_distribution<float> mutRateStable(0,0.15);
+        std::normal_distribution<float> mutRate(0,restStdDevMutRate);
+        std::normal_distribution<float> mutRateStable(0,stableStdDevMutRate);
         std::uniform_int_distribution<unsigned int> worstSurvivalChance(0,100);
         nbRestSurvived = 0;
 
@@ -349,13 +389,13 @@ private:
             {
                 // tough chance - we obliterate it and replace it with a mutated copy of one of the best
                 agents[index] = agents[bestIndex];
-                agents[index].net.mutate(0.05, mutRate, 0.05, mutRate);
+                agents[index].net.mutate(stableMutChance, mutRateStable, stableMutChance, mutRateStable);
                 ++bestIndex;
             }
             else
             {
                 // it survived but has to mutate
-                agents[index].net.mutate(0.2, mutRate, 0.2, mutRate);
+                agents[index].net.mutate(restMutChance, mutRate, restMutChance, mutRate);
                 nbRestSurvived++;
             }
         }
@@ -430,6 +470,10 @@ private:
     std::vector<bool> wkThreadsCanStart;
     unsigned int nbThreadsWorking{0};
     std::atomic<bool> wkThreadsCanExit;
+    float stableStdDevMutRate{0.15};
+    float restStdDevMutRate{0.25};
+    float stableMutChance{0.05};
+    float restMutChance{0.2};
 };
 
 
