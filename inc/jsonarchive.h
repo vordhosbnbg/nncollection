@@ -318,7 +318,7 @@ public:
 
     void load(float& value)
     {
-        if(_currentNodePtr->IsFloat())
+        if(_currentNodePtr->IsFloat() || _currentNodePtr->IsInt())
         {
             value = _currentNodePtr->GetFloat();
         }

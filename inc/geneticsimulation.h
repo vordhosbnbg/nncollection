@@ -22,6 +22,17 @@ class GeneticSimulation
 public:
     GeneticSimulation()
     {
+        init();
+    }
+
+    GeneticSimulation(const Network& initialNet)
+    {
+        init();
+        agents[0].net = initialNet;
+    }
+
+    void init()
+    {
         agents.reserve(agentsNb);
         for(size_t ind = 0; ind < agentsNb; ++ind)
         {

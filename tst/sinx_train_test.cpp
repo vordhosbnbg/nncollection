@@ -11,18 +11,18 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     std::random_device rd;
     std::mt19937 re{rd()};
     std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
-    using NetTopology = FFNetwork<1 /*inputs*/,1 /*outputs*/,4 /*HL#1 neurons*/,4 /*HL#1 neurons*/,4 /*HL#1 neurons*/,4 /*HL#1 neurons*/,4 /*HL#1 neurons*/,4 /*HL#1 neurons*/,4 /*HL#1 neurons*/,4 /*HL#1 neurons*/>;
+    using NetTopology = FFNetwork<1 /*inputs*/,1 /*outputs*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/>;
     GeneticSimulation<
             NetTopology,
             1000 /*agents*/,
             100 /*keep best*/,
             5 /*survival chance of rest*/> gs;
     //constexpr size_t nbEntries = 1000;
-    constexpr unsigned int nbEpochs= 20000;
-    constexpr double pi = 3.14127*2;
+    constexpr unsigned int nbEpochs= 5000;
+    constexpr double range = 3.14127;
     // prepare test data - sinf() function
-    float inpX = -pi;
-    while(inpX <= pi)
+    float inpX = -range;
+    while(inpX <= range)
     {
         auto& entry = gs.testData.addEntry();
         entry.inputs[0] = inpX;
@@ -30,18 +30,18 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         inpX += 0.01;
     }
 
-    gs.setInputRange<0>(-pi,pi);
+    gs.setInputRange<0>(-range,range);
     gs.setOutputRange<0>(-1,1);
 
     gs.train(nbEpochs,true);
 
     NetTopology bestNet = gs.getBestNetwork();
-    float x = -pi;
+    float x = -range;
     float yExpected = 0;
     float yNet = 0;
-    NormalizedValue<float> inputVal(-pi, pi, -1, 1);
+    NormalizedValue<float> inputVal(-range, range, -1, 1);
     std::map<float, std::pair<float,float>> plotData;
-    while(x <= pi)
+    while(x <= range)
     {
         yExpected = std::sin(x);
 
