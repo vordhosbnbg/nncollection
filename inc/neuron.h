@@ -127,9 +127,9 @@ public:
 
 private:
 
+    alignas(16) std::vector<Connection> inputs;
     float value{0};
     float bias{0};
-    std::vector<Connection> inputs;
     static constexpr PrecomputedTanh<10000,-10,10> prec = PrecomputedTanh<10000,-10,10>();
 
 };

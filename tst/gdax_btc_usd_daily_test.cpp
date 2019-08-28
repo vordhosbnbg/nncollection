@@ -90,11 +90,20 @@ int main (int argc, char** argv)
             std::random_device rd;
             std::mt19937 re{rd()};
             std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
-            using NetTopology = FFNetwork<90 /*inputs*/,1 /*outputs*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/,30 /*HL#1 neurons*/>;
+            constexpr unsigned int nbEpochs = 7500;
+            using NetTopology = FFNetwork<90 /*inputs*/,
+                                          1 /*outputs*/,
+                                          30 /*HL#1 neurons*/,
+                                          30 /*HL#1 neurons*/,
+                                          30 /*HL#1 neurons*/,
+                                          30 /*HL#1 neurons*/,
+                                          30 /*HL#1 neurons*/,
+                                          30 /*HL#1 neurons*/,
+                                          30 /*HL#1 neurons*/>;
             using GenSim =  GeneticSimulation<
                             NetTopology,
-                            10000 /*agents*/,
-                            1000 /*keep best*/,
+                            1000 /*agents*/,
+                            100 /*keep best*/,
                             10 /*survival chance of rest*/>;
 
             std::unique_ptr<GenSim> gsPtr;
@@ -118,7 +127,6 @@ int main (int argc, char** argv)
             }
 
             GenSim& gs = *gsPtr.get();
-            constexpr unsigned int nbEpochs = 100;
             // prepare test data - sinf() function
             for(size_t idx = 30; idx < btcData.size(); ++idx)
             {

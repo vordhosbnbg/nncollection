@@ -79,6 +79,6 @@ struct Layer
         archive.save("neurons", neurons);
     }
 
-    std::array<Neuron, Nb> neurons;
+    alignas(16) std::array<Neuron, Nb> neurons;
 };
 
