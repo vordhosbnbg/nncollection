@@ -83,17 +83,15 @@ public:
         }
     }
 
-    template<typename T>
-    void save(const std::vector<T>& vector)
+    template<typename T, typename A>
+    void save(const std::vector<T, A>& vector)
     {
         if(_writerPtr)
         {
             _writerPtr->StartArray();
             for(const T& obj : vector)
             {
-                _writerPtr->StartObject();
-                obj.save(*this);
-                _writerPtr->EndObject();
+                save(obj);
             }
             _writerPtr->EndArray();
         }
@@ -107,9 +105,7 @@ public:
             _writerPtr->StartArray();
             for(const T& obj : array)
             {
-                _writerPtr->StartObject();
-                obj.save(*this);
-                _writerPtr->EndObject();
+                save(obj);
             }
             _writerPtr->EndArray();
         }
@@ -354,8 +350,8 @@ public:
         load(obj);
     }
 
-    template <typename T>
-    void load(std::vector<T>& vector)
+    template <typename T, typename A>
+    void load(std::vector<T, A>& vector)
     {
         ValueRestorer holder(_currentNodePtr);
         for(rapidjson::Value::ConstValueIterator treeValue = holder.getInitialValue()->Begin();

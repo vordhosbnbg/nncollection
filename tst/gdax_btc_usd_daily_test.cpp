@@ -90,7 +90,7 @@ int main (int argc, char** argv)
             std::random_device rd;
             std::mt19937 re{rd()};
             std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
-            constexpr unsigned int nbEpochs = 7500;
+            constexpr unsigned int nbEpochs = 75;
             using NetTopology = FFNetwork<90 /*inputs*/,
                                           1 /*outputs*/,
                                           30 /*HL#1 neurons*/,
@@ -103,8 +103,8 @@ int main (int argc, char** argv)
             using GenSim =  GeneticSimulation<
                             NetTopology,
                             1000 /*agents*/,
-                            100 /*keep best*/,
-                            10 /*survival chance of rest*/>;
+                            500 /*keep best*/,
+                            50 /*survival chance of rest*/>;
 
             std::unique_ptr<GenSim> gsPtr;
 
