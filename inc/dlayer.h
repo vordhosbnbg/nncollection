@@ -92,7 +92,7 @@ struct DynamicLayer
                 const AlignedFloatVector& weights = weightsPerNeuron[neuronIdx];
 
                 //neuron = std::inner_product(inputs.begin(), inputs.end(), weights.begin(), 0.0f);
-                neuron = std::transform_reduce(std::execution::seq, inputs.begin(), inputs.end(), weights.begin(), 0.0f);
+                neuron = std::transform_reduce(std::execution::unseq, inputs.begin(), inputs.end(), weights.begin(), 0.0f);
                 neuron += bias;
                 neuron = prec.tanh(neuron);
             }

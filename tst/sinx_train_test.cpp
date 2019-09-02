@@ -56,17 +56,17 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     }
     std::cout << "Training finished - outputing test data along with expected and actual results of best agent" << std::endl;
 
-    JSONArchive jsonArchive("bestNet.json");
+    JSONArchive jsonArchive("sin_net01.json");
     jsonArchive.write(bestNet);
     NetTopology net2 = gs.getNetworkByNumber(1);
     NetTopology net5 = gs.getNetworkByNumber(4);
     NetTopology net10 = gs.getNetworkByNumber(9);
 
-    JSONArchive jsonNet2("net02.json");
+    JSONArchive jsonNet2("sin_net02.json");
     jsonNet2.write(net2);
-    JSONArchive jsonNet5("net05.json");
+    JSONArchive jsonNet5("sin_net05.json");
     jsonNet5.write(net5);
-    JSONArchive jsonNet10("net10.json");
+    JSONArchive jsonNet10("sin_net10.json");
     jsonNet10.write(net10);
 
 

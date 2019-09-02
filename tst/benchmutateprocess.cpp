@@ -8,8 +8,8 @@ template <typename Net>
 void doTest()
 {
     constexpr size_t netNb = 100;
-    constexpr size_t processIterations = 100000;
-    constexpr size_t mutateIterations = 1000;
+    constexpr size_t processIterations = 1000;
+    constexpr size_t mutateIterations = 10;
     std::random_device rd;
     std::mt19937 re{rd()};
 
