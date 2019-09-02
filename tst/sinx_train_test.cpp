@@ -4,22 +4,24 @@
 #include <iomanip>
 #include "geneticsimulation.h"
 #include "ffnetwork.h"
+#include "dnetworkadapter.h"
 #include "jsonarchive.h"
 
 int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     std::random_device rd;
     std::mt19937 re{rd()};
-    std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
-    using NetTopology = FFNetwork<1 /*inputs*/,1 /*outputs*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/>;
+    std::uniform_real_distribution<float> simpleDist(-3.14f,3.14f);
+    //using NetTopology = FFNetwork<1 /*inputs*/,1 /*outputs*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/>;
+    using NetTopology = DynamicNetworkAdapter<1 /*inputs*/,1 /*outputs*/,8 /*HL#1 neurons*/,16 /*HL#1 neurons*/,8 /*HL#1 neurons*/>;
     GeneticSimulation<
             NetTopology,
-            1000 /*agents*/,
-            100 /*keep best*/,
+            10000 /*agents*/,
+            1000 /*keep best*/,
             5 /*survival chance of rest*/> gs;
     //constexpr size_t nbEntries = 1000;
-    constexpr unsigned int nbEpochs= 5000;
-    constexpr double range = 3.14127;
+    constexpr unsigned int nbEpochs= 100;
+    constexpr float range = 3.14127f;
     // prepare test data - sinf() function
     float inpX = -range;
     while(inpX <= range)
@@ -27,7 +29,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         auto& entry = gs.testData.addEntry();
         entry.inputs[0] = inpX;
         entry.outputs[0] = std::sin(entry.inputs[0]);
-        inpX += 0.01;
+        inpX += 0.01f;
     }
 
     gs.setInputRange<0>(-range,range);
@@ -69,11 +71,12 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 
     std::ofstream ofs("sin_x_train_test_best_results.csv");
+    ofs << "x,yExpected,yNet,diff\n";
     for(auto it = plotData.begin(); it != plotData.end(); ++it)
     {
         float xVal = it->first;
         std::pair<float, float>& plotEntry = it->second;
-        ofs << std::setprecision(10) << std::fixed << xVal << "," << plotEntry.first << "," << plotEntry.second << std::endl;
+        ofs << std::setprecision(10) << std::fixed << xVal << "," << plotEntry.first << "," << plotEntry.second << "," << plotEntry.first - plotEntry.second << std::endl;
     }
     gs.exportStatisticsToCSV("sin_x_train_test_epoch_stats.csv");
     return 0;

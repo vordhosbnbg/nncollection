@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <array>
+#include <algorithm>
 
 template<size_t fractionsPerDigit, int minRange, int maxRange>
 class PrecomputedTanh
@@ -36,14 +37,7 @@ public:
     }
     constexpr size_t getIndex(float x) const
     {
-        if(x > maxRange)
-        {
-            x = maxRange;
-        }
-        else if(x < minRange)
-        {
-            x = minRange;
-        }
+        std::clamp(x, static_cast<float>(minRange), static_cast<float>(maxRange));
         size_t idx = (x - minRange + 0.5 / fractionsPerDigit) * fractionsPerDigit;
         if(idx >= totalFractions)
         {

@@ -4,6 +4,7 @@
 #include <iomanip>
 #include "geneticsimulation.h"
 #include "ffnetwork.h"
+#include "dnetworkadapter.h"
 #include "jsonarchive.h"
 
 class CSVRow
@@ -90,8 +91,17 @@ int main (int argc, char** argv)
             std::random_device rd;
             std::mt19937 re{rd()};
             std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
-            constexpr unsigned int nbEpochs = 75;
-            using NetTopology = FFNetwork<90 /*inputs*/,
+            constexpr unsigned int nbEpochs = 7500;
+//            using NetTopology = FFNetwork<90 /*inputs*/,
+//                                          1 /*outputs*/,
+//                                          30 /*HL#1 neurons*/,
+//                                          30 /*HL#1 neurons*/,
+//                                          30 /*HL#1 neurons*/,
+//                                          30 /*HL#1 neurons*/,
+//                                          30 /*HL#1 neurons*/,
+//                                          30 /*HL#1 neurons*/,
+//                                          30 /*HL#1 neurons*/>;
+            using NetTopology = DynamicNetworkAdapter<90 /*inputs*/,
                                           1 /*outputs*/,
                                           30 /*HL#1 neurons*/,
                                           30 /*HL#1 neurons*/,

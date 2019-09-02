@@ -3,19 +3,25 @@
 #include <boost/align.hpp>
 #include <cmath>
 #include <algorithm>
+#include <random>
+#include <execution>
 #include "precomputedtanh.h"
 
 using AlignedFloatVector = std::vector<float, boost::alignment::aligned_allocator<float,16>>;
+static constexpr PrecomputedTanh<10000,-10,10> prec = PrecomputedTanh<10000,-10,10>();
 
 struct DynamicLayer
 {
-    void connect(const DynamicLayer& inputLayer)
+    void connect(const DynamicLayer& inputLayer, bool ensureProperConnections = false)
     {
         prevLayer = &inputLayer;
-        for(size_t neuronIdx = 0; neuronIdx < neurons.size(); ++neuronIdx)
+        if(ensureProperConnections)
         {
-            AlignedFloatVector& weights = weightsPerNeuron[neuronIdx];
-            weights.resize(inputLayer.size(), 0.0);
+            for(size_t neuronIdx = 0; neuronIdx < neurons.size(); ++neuronIdx)
+            {
+                AlignedFloatVector& weights = weightsPerNeuron[neuronIdx];
+                weights.resize(inputLayer.size(), 0.0);
+            }
         }
     }
 
@@ -42,12 +48,17 @@ struct DynamicLayer
         weightsPerNeuron.resize(newSize, weightsForNewNeuron);
     }
 
+    size_t getNeuronNb()
+    {
+        return neurons.size();
+    }
+
     void setNeuronValue(size_t inputId, float value)
     {
         neurons[inputId] = value;
     }
 
-    float getNeuronValue(size_t inputId)
+    float getNeuronValue(size_t inputId) const
     {
         return neurons[inputId];
     }
@@ -74,22 +85,69 @@ struct DynamicLayer
     {
         if(prevLayer)
         {
-            size_t inputSize = inputsNb();
             const AlignedFloatVector& inputs = prevLayer->neurons;
             for(size_t neuronIdx = 0; neuronIdx < neurons.size(); ++neuronIdx)
             {
                 float& neuron = neurons[neuronIdx];
                 const AlignedFloatVector& weights = weightsPerNeuron[neuronIdx];
 
-                neuron = 0;
-                for(size_t inputIdx = 0; inputIdx < inputSize; ++inputIdx)
-                {
-                    neuron += inputs[inputIdx] * weights[inputIdx];
-                }
+                //neuron = std::inner_product(inputs.begin(), inputs.end(), weights.begin(), 0.0f);
+                neuron = std::transform_reduce(std::execution::seq, inputs.begin(), inputs.end(), weights.begin(), 0.0f);
                 neuron += bias;
-                neuron = /*prec.*/std::tanh(neuron);
+                neuron = prec.tanh(neuron);
             }
         }
+    }
+
+    void randomizeInitial(std::mt19937& randE,
+                          std::uniform_real_distribution<float>& biasDist,
+                          std::uniform_real_distribution<float>& weightDist)
+    {
+        bias = biasDist(randE);
+        for (AlignedFloatVector& weights : weightsPerNeuron)
+        {
+            for(float& weight : weights)
+            {
+                weight = weightDist(randE);
+            }
+        }
+    }
+
+    void mutate(std::mt19937& randE,
+                std::uniform_real_distribution<float>& positiveNormalizedDist,
+                float biasMutChance,
+                std::normal_distribution<float>& biasMutRate,
+                float weightMutChance,
+                std::normal_distribution<float>& weightMutRate)
+    {
+        float actualMutBias = positiveNormalizedDist(randE);
+        if(actualMutBias < biasMutChance)
+        {
+            float biasChange = biasMutRate(randE);
+            bias += biasChange;
+            if(bias > 1)
+            {
+                bias = 1;
+            }
+            else if(bias < -1)
+            {
+                bias = -1;
+            }
+        }
+        for (AlignedFloatVector& weights : weightsPerNeuron)
+        {
+            for(float& weight : weights)
+            {
+                float actualMutWeight = positiveNormalizedDist(randE);
+                if(actualMutWeight < weightMutChance)
+                {
+                    float weightChange = weightMutRate(randE);
+                    weight += weightChange;
+                    std::clamp(weight, -1.0f, 1.0f);
+                }
+            }
+        }
+
     }
 
     template<typename Archive>
@@ -113,6 +171,4 @@ private:
     std::vector<AlignedFloatVector> weightsPerNeuron;
     float bias = 0.0;
     const DynamicLayer* prevLayer = nullptr;
-
-    //static constexpr PrecomputedTanh<10000,-10,10> prec = PrecomputedTanh<10000,-10,10>();
 };

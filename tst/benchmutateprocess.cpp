@@ -1,32 +1,32 @@
 #include <iostream>
 #include <chrono>
 #include "ffnetwork.h"
+#include "dnetworkadapter.h"
 
 
-int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
+template <typename Net>
+void doTest()
 {
-    constexpr size_t netNb = 10000;
-    constexpr size_t processIterations = 1000;
+    constexpr size_t netNb = 100;
+    constexpr size_t processIterations = 100000;
     constexpr size_t mutateIterations = 1000;
     std::random_device rd;
     std::mt19937 re{rd()};
 
-    using Net = FFNetwork<5,1,4,3,2>;
-
-    std::normal_distribution<float> small_change(0,0.3);
+    std::normal_distribution<float> small_change(0,0.3f);
     std::vector<Net> vecNets;
     vecNets.reserve(netNb);
     for(size_t ind = 0; ind < netNb; ++ind)
     {
-        vecNets.emplace_back(Net(re));
+        vecNets.emplace_back(re);
     }
     for(Net net : vecNets)
     {
-        net.setInput<0>(0.1);
-        net.setInput<1>(0.2);
-        net.setInput<2>(0.3);
-        net.setInput<3>(0.4);
-        net.setInput<4>(0.5);
+        net.template setInput<0>(0.1);
+        net.template setInput<1>(0.2);
+        net.template setInput<2>(0.3);
+        net.template setInput<3>(0.4);
+        net.template setInput<4>(0.5);
     }
 
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();
@@ -34,9 +34,9 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     {
         for(size_t ind = 0; ind < mutateIterations; ++ind)
         {
-            net.mutate(0.1,
+            net.mutate(0.1f,
                        small_change,
-                       0.1,
+                       0.1f,
                        small_change);
         }
     }
@@ -67,6 +67,17 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
               << processIterations << " times for "
               << std::fixed << totalProcessTime << " sec." << std::endl;
     std::cout << "Single process time - " << std::fixed << processTimeSingle << " ns " << std::endl;
+
+}
+
+int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
+{
+
+    //using StaticNet = FFNetwork<5,10,20,10,2>;
+    using DynamicNet = DynamicNetworkAdapter<5,10,20,10,2>;
+
+    //doTest<StaticNet>();
+    doTest<DynamicNet>();
 
 
     return 0;

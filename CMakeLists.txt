@@ -40,7 +40,7 @@ target_link_libraries (nncollection ${CMAKE_THREAD_LIBS_INIT})
 foreach(_test ${Project_Test_SOURCES})
     get_filename_component(_target_name ${_test} NAME_WE)
     add_executable (${_target_name} ${_test} )
-    target_link_libraries(${_target_name} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(${_target_name} ${CMAKE_THREAD_LIBS_INIT} tbb)
     set_property(TARGET ${_target_name} PROPERTY CXX_STANDARD 17)
 endforeach()
 

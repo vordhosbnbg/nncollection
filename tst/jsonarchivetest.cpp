@@ -20,7 +20,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     JSONArchive jsonArchive3("net2.json");
     jsonArchive3.write(net2);
 
-    DynamicNetwork dnet1;
+    DynamicNetwork dnet1(re);
     dnet1.setInputNb(2);
     dnet1.setOutputNb(2);
     dnet1.setHiddenLayers(3u,4u,3u);
@@ -29,7 +29,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     JSONArchive jsonArchiveDnet1("dnet1.json");
     jsonArchiveDnet1.write(dnet1);
     JSONArchive jsonArchiveDnet2("dnet1.json");
-    DynamicNetwork dnet2;
+    DynamicNetwork dnet2(re);
     jsonArchiveDnet2.read(dnet2);
     JSONArchive jsonArchiveDnet3("dnet2.json");
     jsonArchiveDnet3.write(dnet2);

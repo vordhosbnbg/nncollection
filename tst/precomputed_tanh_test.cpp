@@ -14,7 +14,7 @@ struct TanhData
 
 int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
-    constexpr auto prec = PrecomputedTanh<10000,-9,9>();
+    constexpr auto prec = PrecomputedTanh<10000,-10,10>();
 
 
     std::vector<TanhData> precomputedData;
