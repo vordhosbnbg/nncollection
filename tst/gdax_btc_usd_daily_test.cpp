@@ -49,7 +49,7 @@ int main (int argc, char** argv)
 
 
             std::random_device rd;
-            std::mt19937 re{rd()};
+            std::minstd_rand re{rd()};
             std::uniform_real_distribution<float> simpleDist(-3.14,3.14);
             constexpr unsigned int nbEpochs = 7500;
 //            using NetTopology = FFNetwork<90 /*inputs*/,

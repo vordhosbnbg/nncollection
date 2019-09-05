@@ -9,6 +9,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <execution>
 #include "agent.h"
 #include "normalizedvalue.h"
 #include "testdata.h"
@@ -337,7 +338,7 @@ private:
 
     void sortAllAgentsOnFitness()
     {
-        std::sort(agents.begin(), agents.end(),
+        std::sort(std::execution::unseq, agents.begin(), agents.end(),
                   [](const Agent<Network>& a, const Agent<Network>& b) -> bool
         {
             return a.fitness > b.fitness;
@@ -454,7 +455,7 @@ private:
     };
 
     std::random_device rd;
-    std::mt19937 re{rd()};
+    std::minstd_rand re{rd()};
     std::vector<Agent<Network>> agents;
     std::vector<NormalizedValue<float>> inputs;
     std::vector<NormalizedValue<float>> outputs;
@@ -470,10 +471,10 @@ private:
     std::vector<bool> wkThreadsCanStart;
     unsigned int nbThreadsWorking{0};
     std::atomic<bool> wkThreadsCanExit;
-    float stableStdDevMutRate{0.15};
-    float restStdDevMutRate{0.25};
-    float stableMutChance{0.05};
-    float restMutChance{0.2};
+    float stableStdDevMutRate{0.15f};
+    float restStdDevMutRate{0.25f};
+    float stableMutChance{0.05f};
+    float restMutChance{0.2f};
 };
 
 

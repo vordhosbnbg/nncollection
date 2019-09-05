@@ -9,7 +9,7 @@ template <unsigned int inputNb, unsigned int outputNb, unsigned int... hiddenNb>
 class FFNetwork
 {
 public:
-    constexpr FFNetwork(std::mt19937& randomEngine) : re(randomEngine)
+    constexpr FFNetwork(std::minstd_rand& randomEngine) : re(randomEngine)
     {
         addInputsToHiddenLayerRecurse<0>(inputLayer);
         randomizeInitial(re,
@@ -122,7 +122,7 @@ public:
     }
 
 private:
-    std::mt19937& re;
+    std::minstd_rand& re;
     Layer<inputNb> inputLayer;
     Layer<outputNb> outputLayer;
     std::tuple<Layer<hiddenNb>...> hiddenLayers;
@@ -197,7 +197,7 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb == hiddenLayersCount>::type
-    randomizeLayerInitialAndRecurse([[maybe_unused]] std::mt19937& randE,
+    randomizeLayerInitialAndRecurse([[maybe_unused]] std::minstd_rand& randE,
                                            [[maybe_unused]] std::uniform_real_distribution<float>& biasDist,
                                            [[maybe_unused]] std::uniform_real_distribution<float>& weightDist)
     {
@@ -205,7 +205,7 @@ private:
 
     template<size_t layerNb>
     typename std::enable_if<layerNb < hiddenLayersCount>::type
-    randomizeLayerInitialAndRecurse(std::mt19937& randE,
+    randomizeLayerInitialAndRecurse(std::minstd_rand& randE,
                                            std::uniform_real_distribution<float>& biasDist,
                                            std::uniform_real_distribution<float>& weightDist)
     {
@@ -218,7 +218,7 @@ private:
                                                    weightDist);
     }
 
-    void randomizeInitial(std::mt19937& randE,
+    void randomizeInitial(std::minstd_rand& randE,
                                  std::uniform_real_distribution<float>& biasDist,
                                  std::uniform_real_distribution<float>& weightDist)
     {

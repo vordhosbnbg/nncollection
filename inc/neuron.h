@@ -58,7 +58,7 @@ public:
         value = prec.tanh(value);
     }
 
-    void mutate(std::mt19937& randE,
+    void mutate(std::minstd_rand& randE,
                        std::uniform_real_distribution<float>& positiveNormalizedDist,
                        float biasMutChance,
                        std::normal_distribution<float>& biasMutRate,
@@ -98,7 +98,7 @@ public:
         }
     }
 
-    void randomizeInitial(std::mt19937& randE,
+    void randomizeInitial(std::minstd_rand& randE,
                                  std::uniform_real_distribution<float>& biasDist,
                                  std::uniform_real_distribution<float>& weightDist)
     {

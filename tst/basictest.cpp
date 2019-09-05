@@ -5,7 +5,7 @@
 int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     std::random_device rd;
-    std::mt19937 re{rd()};
+    std::minstd_rand re{rd()};
 
     FFNetwork<5,1,4,3,2> net(re);
     std::cout << "Setting inputs to 0.1, 0.2, 0.3, 0.4, 0.5" << std::endl;

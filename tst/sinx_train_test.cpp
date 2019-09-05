@@ -10,17 +10,17 @@
 int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     std::random_device rd;
-    std::mt19937 re{rd()};
+    std::minstd_rand re{rd()};
     std::uniform_real_distribution<float> simpleDist(-3.14f,3.14f);
     //using NetTopology = FFNetwork<1 /*inputs*/,1 /*outputs*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/,32 /*HL#1 neurons*/>;
-    using NetTopology = DynamicNetworkAdapter<1 /*inputs*/,1 /*outputs*/,8 /*HL#1 neurons*/,16 /*HL#1 neurons*/,8 /*HL#1 neurons*/>;
+    using NetTopology = DynamicNetworkAdapter<1 /*inputs*/,1 /*outputs*/,16 /*HL#1 neurons*/,32 /*HL#1 neurons*/,16 /*HL#1 neurons*/>;
     GeneticSimulation<
             NetTopology,
             10000 /*agents*/,
-            1000 /*keep best*/,
-            5 /*survival chance of rest*/> gs;
+            100 /*keep best*/,
+            50 /*survival chance of rest*/> gs;
     //constexpr size_t nbEntries = 1000;
-    constexpr unsigned int nbEpochs= 100;
+    constexpr unsigned int nbEpochs= 1000;
     constexpr float range = 3.14127f;
     // prepare test data - sinf() function
     float inpX = -range;
@@ -52,7 +52,7 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         bestNet.process();
         yNet = bestNet.getOutput<0>();
         plotData[x] = std::make_pair(yExpected, yNet);
-        x += 0.001;
+        x += 0.001f;
     }
     std::cout << "Training finished - outputing test data along with expected and actual results of best agent" << std::endl;
 

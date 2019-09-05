@@ -5,7 +5,7 @@
 struct DynamicNetwork
 {
 
-    DynamicNetwork(std::mt19937& randomEngine) : re(randomEngine)
+    DynamicNetwork(std::minstd_rand& randomEngine) : re(randomEngine)
     {
     }
 
@@ -88,7 +88,7 @@ struct DynamicNetwork
         outputLayer.update();
     }
 
-    void randomizeInitial(std::mt19937& randE,
+    void randomizeInitial(std::minstd_rand& randE,
                           std::uniform_real_distribution<float>& biasDist,
                           std::uniform_real_distribution<float>& weightDist)
     {
@@ -230,7 +230,7 @@ private:
         }
     }
 
-    std::mt19937& re;
+    std::minstd_rand& re;
     std::uniform_real_distribution<float> normalizedDist{-1,1};
     std::uniform_real_distribution<float> positiveNormalizedDist{0,1};
     DynamicLayer inputLayer;

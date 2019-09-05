@@ -4,7 +4,7 @@
 template<typename Network>
 struct Agent
 {
-    Agent(std::mt19937& randE) : net(randE) {}
+    Agent(std::minstd_rand& randE) : net(randE) {}
     Network net;
     double fitness{};
 };

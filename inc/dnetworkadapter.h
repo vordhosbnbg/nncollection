@@ -4,7 +4,7 @@
 template <unsigned int inputNb, unsigned int outputNb, unsigned int... hiddenNb>
 struct DynamicNetworkAdapter : public DynamicNetwork
 {
-    DynamicNetworkAdapter(std::mt19937& randomEngine) : DynamicNetwork(randomEngine)
+    DynamicNetworkAdapter(std::minstd_rand& randomEngine) : DynamicNetwork(randomEngine)
     {
         setInputNb(inputNb);
         setOutputNb(outputNb);

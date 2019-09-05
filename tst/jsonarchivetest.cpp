@@ -6,7 +6,7 @@
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     std::random_device rd;
-    std::mt19937 re{rd()};
+    std::minstd_rand re{rd()};
     FFNetwork<5,1,4,3,2> net1(re);
 
     JSONArchive jsonArchive("net1.json");
